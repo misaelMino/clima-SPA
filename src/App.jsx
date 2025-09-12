@@ -3,12 +3,20 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 import LoginPage from "./pages/login/LoginPage.jsx";
 import GraficaDiaria from "./pages/graphic/Graphic.jsx";
+import Layout from "./components/Layout.jsx";
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   {
     element: <PrivateRoute />,
-    children: [{ path: "/", element: <GraficaDiaria /> }],
+    children: [
+      {
+        element: <Layout />,
+        children: [
+          { path: "/", element: <GraficaDiaria /> }
+        ],
+      },
+    ],
   },
 ]);
 

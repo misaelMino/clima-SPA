@@ -15,18 +15,17 @@ export default function DailyStrip({ data }) {
   })), [data]);
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="flex gap-3 min-w-max">
+    <div className="daily-strip-container">
+      <div className="daily-strip-wrapper">
         {items.map((it, i) => (
-          <div key={i} className="flex flex-col items-center bg-white rounded-2xl shadow p-3 w-28">
-            <span className="text-sm text-gray-500">{it.dia}</span>
-            {/* iconito simple por nubosidad/lluvia */}
-            <div className="text-2xl">{(it.lluvia+it.chap)>0 ? "🌧️" : (it.nubo>60 ? "☁️" : "☀️")}</div>
-            <div className="text-lg font-semibold">{it.tmax}°</div>
-            <div className="text-xs text-gray-500">min {it.tmin}°</div>
-            <div className="text-xs mt-1">💨 {it.viento} km/h</div>
+          <div key={i} className="daily-card">
+            <span className="daily-day">{it.dia}</span>
+            <div className="daily-icon">{(it.lluvia+it.chap)>0 ? "🌧️" : (it.nubo>60 ? "☁️" : "☀️")}</div>
+            <div className="daily-temp-max">{it.tmax}°</div>
+            <div className="daily-temp-min">min {it.tmin}°</div>
+            <div className="daily-wind">💨 {it.viento} km/h</div>
             {(it.lluvia+it.chap)>0 && (
-              <div className="text-xs mt-1">💧 {(it.lluvia+it.chap).toFixed(1)} mm</div>
+              <div className="daily-precip">💧 {(it.lluvia+it.chap).toFixed(1)} mm</div>
             )}
           </div>
         ))}

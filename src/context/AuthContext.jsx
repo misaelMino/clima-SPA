@@ -6,8 +6,15 @@ import { bindAuth } from "../api/authBridge";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [accessToken, setAccessToken] = useState(null);
-  const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(() => {
+    // Cargar token desde localStorage al inicializar
+    return localStorage.getItem('accessToken') || null;
+  });
+  const [user, setUser] = useState(() => {
+    // Cargar usuario desde localStorage al inicializar
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   const isAuthenticated = !!accessToken;
 
@@ -15,6 +22,10 @@ export function AuthProvider({ children }) {
     const data = await loginApi({ username, password });
     setAccessToken(data.accessToken);
     setUser(data.user);
+    
+    // Guardar en localStorage
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('user', JSON.stringify(data.user));
   }, []);
 
   const logout = useCallback(async () => {
@@ -23,19 +34,32 @@ export function AuthProvider({ children }) {
     } finally {
       setAccessToken(null);
       setUser(null);
+      
+      // Limpiar localStorage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
     }
   }, []);
 
-  // Persistencia opcional: intentar refresh al montar
+  // Persistencia: intentar refresh al montar si hay token guardado
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await refreshApi();
-        setAccessToken(data.accessToken);
-        // si querés, pedir /me para setear user
-      } catch { /* sin sesión */ }
-    })();
-  }, []);
+    if (accessToken) {
+      (async () => {
+        try {
+          const data = await refreshApi();
+          setAccessToken(data.accessToken);
+          localStorage.setItem('accessToken', data.accessToken);
+          // si querés, pedir /me para setear user
+        } catch { 
+          // Si el refresh falla, limpiar la sesión
+          setAccessToken(null);
+          setUser(null);
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('user');
+        }
+      })();
+    }
+  }, [accessToken]);
 
   // 🔗 Vincular el estado al bridge para que http.js pueda leer/actualizar
   useEffect(() => {

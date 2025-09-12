@@ -98,61 +98,60 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* <div className="min-h-screen flex items-center justify-center p-2 relative bg-gradient-to-br from-[#030029] via-[#020018] to-[#030027]"> */}
       <div className="min-h-screen flex items-center justify-center p-2 relative">
         <div
           ref={cardRef}
-          className="dofon z-[50] backdrop-blur-lg rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300 hover:scale-101"
+          className="dofon login-container z-[50] rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300 hover:scale-101"
         >
           <div className="logo-container">
             <img src={logo} alt="logo" />
           </div>
-          <h2 className="text-4xl font-extrabold text-white mb-6 text-center animate-pulse">
+          <h2 className="login-title text-4xl font-extrabold mb-6 text-center">
             Iniciar sesión
           </h2>
 
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Username */}
             <div className="relative" ref={(el) => (inputsRef.current[0] = el)}>
+              <FaUser className="absolute left-3 top-3 text-white z-10" />
               <input
                 type="text"
                 id="username"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-white/20  focus:ring-2 focus:ring-gray-400 text-white placeholder-gray-200 outline-none transition duration-200"
+                className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
                 placeholder="Usuario"
               />
-              <FaUser className="absolute right-3 top-3 text-white" />
             </div>
 
             {/* Password */}
             <div className="relative" ref={(el) => (inputsRef.current[1] = el)}>
+              <FaLock className="absolute left-3 top-3 text-white z-10" />
               <input
                 type="password"
                 id="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-white/20 focus:ring-2 focus:ring-gray-400 text-white placeholder-gray-200 outline-none transition duration-200"
+                className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
                 placeholder="Contraseña"
               />
-              <FaLock className="absolute right-3 top-3 text-white" />
             </div>
 
             <button
               ref={btnRef}
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#000000]/30 to-[#000129]/30 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 focus:ring-4 focus:ring-purple-300 transition duration-300 transform hover:scale-102"
+              className="login-button w-full text-white font-bold py-3 px-4 rounded-lg"
             >
-              Entrar
-              <FaArrowRight />
+              <span>Ingresar</span>
+              
             </button>
           </form>
 
           <p className="text-white text-center mt-6">
             ¿No tenés cuenta?{" "}
-            <a href="#" className="font-bold hover:underline">
+            <a href="#" className="register-link font-bold">
               Registrate
             </a>
           </p>
@@ -160,14 +159,14 @@ export default function LoginPage() {
           <div className="mt-8 flex justify-center space-x-6">
             <a
               href="#"
-              className="text-white hover:text-purple-300 transition-colors duration-200"
+              className="social-link text-white"
               ref={(el) => (socialsRef.current[0] = el)}
             >
               <FaFacebookF className="text-2xl" />
             </a>
             <a
               href="#"
-              className="text-white hover:text-purple-300 transition-colors duration-200"
+              className="social-link text-white"
               ref={(el) => (socialsRef.current[1] = el)}
             >
               <FaInstagram className="text-2xl" />

@@ -20,10 +20,26 @@ export const exportCsv = async ({ ciudad_id, from, to, filename = "clima.csv" })
     params: { ciudad_id, from, to },
     responseType: "blob",
   });
+  
+  // Generar nombre de archivo profesional
+  const today = new Date();
+  const isToday = from === to && from === today.toISOString().split('T')[0];
+  
+  let finalFilename = filename;
+  if (isToday) {
+    const timestamp = today.toISOString().replace(/[:.]/g, '-').split('T')[0] + '_' + 
+                     today.toTimeString().split(' ')[0].replace(/:/g, '-');
+    finalFilename = `datos_climaticos_hoy_${timestamp}.csv`;
+  } else {
+    const fromDate = new Date(from).toLocaleDateString('es-AR').replace(/\//g, '-');
+    const toDate = new Date(to).toLocaleDateString('es-AR').replace(/\//g, '-');
+    finalFilename = `datos_climaticos_${fromDate}_a_${toDate}.csv`;
+  }
+  
   const blobUrl = URL.createObjectURL(new Blob([res.data]));
   const a = document.createElement("a");
   a.href = blobUrl;
-  a.download = filename;
+  a.download = finalFilename;
   document.body.appendChild(a);
   a.click();
   a.remove();
