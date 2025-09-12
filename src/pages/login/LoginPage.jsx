@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useMemo } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
@@ -27,6 +27,17 @@ export default function LoginPage() {
   const inputsRef = useRef([]);
   const btnRef = useRef(null);
   const socialsRef = useRef([]);
+  const StaticSnow = useMemo(
+    () => (
+      <SnowV3
+        className="absolute inset-0 z-[1]"
+        density={70}
+        speed={1.1}
+        color="#fff"
+      />
+    ),
+    []
+  );
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -35,10 +46,10 @@ export default function LoginPage() {
         y: 50,
         duration: 1,
         ease: "back",
-        // evita pintar el estado inicial antes de arrancar
         immediateRender: false,
+        onComplete: () =>
+          gsap.set(cardRef.current, { clearProps: "transform" }),
       });
-
       gsap.from(inputsRef.current, {
         opacity: 0,
         x: -50,
@@ -56,6 +67,8 @@ export default function LoginPage() {
           delay: 1,
           ease: "elastic.out(1, 0.5)",
           immediateRender: false,
+          onComplete: () =>
+            gsap.set(btnRef.current, { clearProps: "transform" }),
         });
       }
 
@@ -89,7 +102,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center p-2 relative">
         <div
           ref={cardRef}
-          className="dofon z-[50] backdrop-blur-lg rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-101"
+          className="dofon z-[50] backdrop-blur-lg rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300 hover:scale-101"
         >
           <div className="logo-container">
             <img src={logo} alt="logo" />
@@ -107,7 +120,7 @@ export default function LoginPage() {
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-white/20 focus:bg-white/30 focus:ring-2 focus:ring-purple-300 text-white placeholder-gray-200 outline-none transition duration-200"
+                className="w-full px-4 py-3 rounded-lg bg-white/20  focus:ring-2 focus:ring-gray-400 text-white placeholder-gray-200 outline-none transition duration-200"
                 placeholder="Usuario"
               />
               <FaUser className="absolute right-3 top-3 text-white" />
@@ -121,7 +134,7 @@ export default function LoginPage() {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-white/20 focus:bg-white/30 focus:ring-2 focus:ring-purple-300 text-white placeholder-gray-200 outline-none transition duration-200"
+                className="w-full px-4 py-3 rounded-lg bg-white/20 focus:ring-2 focus:ring-gray-400 text-white placeholder-gray-200 outline-none transition duration-200"
                 placeholder="Contraseña"
               />
               <FaLock className="absolute right-3 top-3 text-white" />
@@ -130,7 +143,7 @@ export default function LoginPage() {
             <button
               ref={btnRef}
               type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#000000]/30 to-[#000129]/30 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 focus:ring-4 focus:ring-purple-300 transition duration-300 transform hover:scale-105"
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#000000]/30 to-[#000129]/30 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 focus:ring-4 focus:ring-purple-300 transition duration-300 transform hover:scale-102"
             >
               Entrar
               <FaArrowRight />
@@ -161,7 +174,7 @@ export default function LoginPage() {
             </a>
           </div>
         </div>
-        <SnowV3 className="absolute inset-0 z-[1]" density={70} speed={1.1} />
+        {StaticSnow}
         <AnimatedGradient />
       </div>
     </>
