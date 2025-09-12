@@ -16,10 +16,6 @@ import "./LoginPage.css";
 import SnowV3 from "../../components/SnowV3";
 import AnimatedGradient from "../../components/AnimatedGradient";
 
-
-
-
-
 export default function LoginPage() {
   const [form, setForm] = useState({ username: "", password: "" });
   const { login } = useAuth();
@@ -31,7 +27,7 @@ export default function LoginPage() {
   const btnRef = useRef(null);
   const socialsRef = useRef([]);
 
-   useLayoutEffect(() => {
+  useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from(cardRef.current, {
         opacity: 0,
@@ -76,7 +72,6 @@ export default function LoginPage() {
     return () => ctx.revert();
   }, []);
 
-
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -89,10 +84,8 @@ export default function LoginPage() {
 
   return (
     <>
-
       {/* <div className="min-h-screen flex items-center justify-center p-2 relative bg-gradient-to-br from-[#030029] via-[#020018] to-[#030027]"> */}
       <div className="min-h-screen flex items-center justify-center p-2 relative">
-
         <div
           ref={cardRef}
           className="dofon z-[50] backdrop-blur-lg rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-101"
@@ -168,7 +161,7 @@ export default function LoginPage() {
           </div>
         </div>
         <SnowV3 className="absolute inset-0 z-[1]" density={70} speed={1.1} />
-        <AnimatedGradient/>
+        <AnimatedGradient />
       </div>
     </>
   );
