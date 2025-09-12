@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
+import logo from "../../assets/logo1.png";
 import {
   FaUser,
   FaEnvelope,
@@ -91,7 +92,7 @@ export default function LoginPage() {
           className="dofon z-[50] backdrop-blur-lg rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-101"
         >
           <div className="logo-container">
-            <img src="./src/assets/logo1.png" alt="logo" />
+            <img src={logo} alt="logo" />
           </div>
           <h2 className="text-4xl font-extrabold text-white mb-6 text-center animate-pulse">
             Iniciar sesión
