@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: front-clima
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: VITE_API_CLIMA
+        sync: false
+      - key: VITE_JWT_SECRET
+        sync: false

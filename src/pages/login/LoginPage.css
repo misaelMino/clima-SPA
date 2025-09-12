@@ -1,0 +1,60 @@
+@keyframes shift {
+  0% {
+    background-position: 0% 0%, 100% 100%, 0% 0%;
+  }
+  50% {
+    background-position: 50% 50%, 50% 50%, 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 100%, 0% 0%;
+  }
+}
+
+button,
+a,
+img,
+svg,
+h2,
+p {
+  user-select: none;
+  cursor: pointer;
+}
+
+.relative div {
+  user-select: none;
+  cursor: pointer;
+}
+
+.dofon {
+  position: relative;
+  
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.dofon::before {
+  content: "";
+  background-image: url("/src/assets/dofon.png");
+  position: absolute;
+  inset: 0;
+  opacity: 0.3;
+  z-index: 0;
+  border-radius: 24px;
+}
+
+.dofon > * {
+  position: relative;
+  z-index: 1; /* que el contenido quede encima */
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-container img {
+  width: 250px;
+  height: auto;
+}
