@@ -1,5 +1,5 @@
 // pages/graphic/Graphic.jsx
-import { useEffect, useState, useMemo, number } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { getCiudades, getDiaria, exportCsv } from "../../api/clima";
 import CitySelect from "../../components/cityselect/CitySelect";
 import DailyStrip from "../../components/daily/DailyStrip";
@@ -14,7 +14,7 @@ import "./Graphic.css";
 export default function GraficaDiaria() {
   const [loadingCities, setLoadingCities] = useState(true);
   const [cities, setCities] = useState([]);
-  const [ciudadId, setCiudadId] = useState(null);
+  const [ciudadId, setCiudadId] = (useState < number) | (null > null);
   const [ciudadAltitud, setCiudadAltitud] = useState("");
   const [ciudadLongitud, setCiudadLongitud] = useState("");
   const [data, setData] = useState([]);
@@ -96,27 +96,13 @@ export default function GraficaDiaria() {
     })();
   }, [ciudadId, from, to]);
 
+  // 👉 valor derivado optimizado con useMemo para evitar recálculos innecesarios
   const hoy = useMemo(() => {
     if (!data?.length) return null;
-    // console.log('data', data)
-
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
     const exact = data.find((d) => (d.fecha ?? "").startsWith(today));
-    // console.log('today?:', exact)
     return exact ?? data[data.length - 1];
   }, [data]);
-
-  const citiesById = useMemo(
-    () => Object.fromEntries(cities.map((c) => [c.id, c])),
-    [cities]
-  );
-
-  const selectedCity = ciudadId != null ? citiesById[ciudadId] : null;
-
-  const selectedCoords = useMemo(() => {
-    if (!selectedCity) return null;
-    return { lat: selectedCity.latitud, lon: selectedCity.longitud };
-  }, [selectedCity]);
 
   if (cities && loadingCities)
     return <LoadingPage message="Cargando datos del clima..." />;
@@ -146,8 +132,8 @@ export default function GraficaDiaria() {
           ) : (
             <CitySelect
               cities={cities}
-              value={ciudadId ?? ""}
-              onChange={(id) => setCiudadId(id)}
+              value={ciudadId}
+              onChange={setCiudadId}
               disabled={loadingCities}
             />
           )}
@@ -163,16 +149,10 @@ export default function GraficaDiaria() {
               <div className="section-title">Hoy</div>
               <TodayKpis d={hoy} />
             </div>
-            {selectedCoords && (
-              <div className="weather-section ">
-                <div className="section-title">Pronóstico extendido</div>
-                <DailyStripPro
-                  lat={selectedCoords.lat}
-                  lon={selectedCoords.lon}
-                  days={7}
-                />
-              </div>
-            )}
+            <div className="weather-section ">
+              <div className="section-title">Pronóstico extendido</div>
+              <DailyStripPro lat={ciudad.lat} lon={ciudad.lon} days={7} />
+            </div>
 
             <div className="weather-section">
               <div className="section-title">Condiciones Previas</div>

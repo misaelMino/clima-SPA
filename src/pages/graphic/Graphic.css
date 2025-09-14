@@ -515,30 +515,8 @@ a, button, [role="button"], .export-button-small, .contact-link, .footer-link {
   cursor: pointer !important;
 }
 
-/* Cursor específico para inputs */
-input, select, textarea {
-  cursor: text !important;
-}
 
-/* Estilos para las opciones del select */
-select option {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1e40af;
-  font-weight: 500;
-  padding: 0.5rem;
-  border: none;
-}
 
-select option:hover {
-  background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
-  color: #1e3a8a;
-}
-
-select option:checked {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  font-weight: 600;
-}
 
 /* Responsive para KPIs */
 @media (max-width: 768px) {
