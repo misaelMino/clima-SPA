@@ -4,11 +4,9 @@ import { getAuth } from "./authBridge";
 const base = (import.meta.env.VITE_API_CLIMA || "").replace(/\/+$/, "");
 
 export const api = axios.create({
-  baseURL: `${base}/api/v1`,
-  timeout: 10000,
-  withCredentials: true, // necesario para enviar/recibir la cookie httpOnly en /auth/*
+  baseURL: "/api/v1",        
+  withCredentials: true,     
 });
-
 
 
 
