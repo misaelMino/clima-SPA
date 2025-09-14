@@ -6,15 +6,12 @@ import { bindAuth } from "../api/authBridge";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [accessToken, setAccessToken] = useState(() => {
-    // Cargar token desde localStorage al inicializar
-    return localStorage.getItem('accessToken') || null;
-  });
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem('accessToken'));
   const [user, setUser] = useState(() => {
-    // Cargar usuario desde localStorage al inicializar
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+  const [bootstrapped, setBootstrapped] = useState(false);
 
   const isAuthenticated = !!accessToken;
 
@@ -22,57 +19,49 @@ export function AuthProvider({ children }) {
     const data = await loginApi({ username, password });
     setAccessToken(data.accessToken);
     setUser(data.user);
-    
-    // Guardar en localStorage
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('user', JSON.stringify(data.user));
   }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await logoutApi();
-    } finally {
+    try { await logoutApi(); } finally {
       setAccessToken(null);
       setUser(null);
-      
-      // Limpiar localStorage
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
     }
   }, []);
 
-  // Persistencia: intentar refresh al montar si hay token guardado
+  // 🔁 Bootstrap de sesión: INTENTAR REFRESH SIEMPRE al montar (aunque no haya accessToken)
   useEffect(() => {
-    if (accessToken) {
-      (async () => {
-        try {
-          const data = await refreshApi();
-          setAccessToken(data.accessToken);
-          localStorage.setItem('accessToken', data.accessToken);
-          // si querés, pedir /me para setear user
-        } catch { 
-          // Si el refresh falla, limpiar la sesión
-          setAccessToken(null);
-          setUser(null);
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('user');
-        }
-      })();
-    }
-  }, [accessToken]);
+    (async () => {
+      try {
+        const data = await refreshApi();        // <-- solo requiere cookie rtk
+        setAccessToken(data.accessToken);
+        localStorage.setItem('accessToken', data.accessToken);
+        // opcional: pedir /me y setUser(...)
+      } catch {
+        // sin cookie o expirada => seguimos anónimos
+        setAccessToken(null);
+        setUser(null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+      } finally {
+        setBootstrapped(true);
+      }
+    })();
+  }, []);
 
-  // 🔗 Vincular el estado al bridge para que http.js pueda leer/actualizar
+  // 🔗 Bridge para que tu http.js pueda leer/actualizar el access token
   useEffect(() => {
     bindAuth({ accessToken, setAccessToken });
   }, [accessToken]);
 
   return (
-    <AuthContext.Provider value={{ accessToken, user, isAuthenticated, login, logout, setAccessToken }}>
+    <AuthContext.Provider value={{ accessToken, user, isAuthenticated, login, logout, setAccessToken, bootstrapped }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export function useAuth() { return useContext(AuthContext); }
