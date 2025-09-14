@@ -5,6 +5,12 @@ export async function loginApi({ username, password }) {
   return data; // { accessToken, user }
 }
 
+export async function registerApi({ username, password }) {
+  const { data } = await api.post("/auth/register", { username, password }, { withCredentials: true });
+  return data; // { accessToken, user }
+}
+
+
 export async function refreshApi() {
   const { data } = await api.post("/auth/refresh", {}, { withCredentials: true });
   return data; // { accessToken }

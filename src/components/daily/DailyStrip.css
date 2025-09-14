@@ -1,0 +1,194 @@
+body/* ========== DailyStrip base (compartido por DailyStrip y DailyStripPro) ========== */
+
+/* antes: display:flex; overflow-x:auto; */
+.daily-strip-container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;   /* 👈 apilar botones, strip y panel */
+  gap: .75rem;
+  overflow: visible;        /* 👈 nada de scroll acá */
+  padding: .5rem 0;
+}
+
+/* estos se quedan con el scroll horizontal propio */
+.daily-strip-wrapper{
+  display: flex;
+  gap: 1rem;
+
+  overflow-x: auto;         /* 👈 scroll sólo acá */
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+/* Card diaria */
+.daily-card{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+
+  /* look similar al resto de tu UI */
+  background:linear-gradient(135deg,rgba(255,255,255,.85) 0%,rgba(248,250,252,.85) 100%);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.3);
+  border-radius:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,.1), 0 4px 16px rgba(0,0,0,.05), inset 0 1px 0 rgba(255,255,255,.8);
+
+  margin: 10px 0;
+  padding:1rem;
+  min-width:120px;
+  max-width:160px;
+  
+  /* 🔑 permitir expansión del panel horario */
+  min-height: 203px;
+  height:auto;           /* sin altura fija */
+  overflow:visible;      /* no ocultar el panel expandido */
+  transition:box-shadow .25s ease, transform .2s ease;
+}
+
+.daily-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,.15); }
+.daily-card:active{ transform:translateY(0); }
+
+.daily-day{
+  font-size:.75rem;
+  color:#6b7280;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  margin-bottom:.5rem;
+}
+
+.daily-icon{ font-size:1.5rem; margin-bottom:.5rem; }
+.daily-temp-max{ font-size:1.25rem; font-weight:700; color:#1f2937; margin-bottom:.25rem; }
+.daily-temp-min{ font-size:.8rem; color:#6b7280; margin-bottom:.4rem; }
+.daily-wind{ font-size:.75rem; color:#6b7280; margin-bottom:.25rem; }
+.daily-precip{ font-size:.75rem; color:#3b82f6; font-weight:600; }
+
+/* Panel horario (el div interno que renderiza DailyStripPro) */
+.daily-card .hourly-panel{
+  margin-top:.75rem;
+  border-radius:12px;
+  background:#0f172a;        /* tailwind slate-900 */
+  color:#e5e7eb;
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+  padding:.5rem;
+}
+.daily-card .hourly-scroll{ display:flex; overflow-x:auto; gap:.5rem; }
+.daily-card .hourly-chip{
+  min-width:110px; padding:.5rem; border-radius:.5rem; background:#111827; /* slate-800 */
+  font-size:.75rem;
+}
+
+/* Responsive pequeño */
+@media (max-width:480px){
+  .daily-card{ min-width:110px; padding:.75rem; }
+  .daily-icon{ font-size:1.35rem; }
+}
+
+/* ====== Panel de detalle inferior ====== */
+.daily-detail-panel{
+  /* ya lo tenías: panel debajo */
+  margin-top: .25rem;
+  padding: .75rem;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e5e7eb;
+  box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+
+
+
+.daily-detail-header{
+  display:flex; gap:.75rem; align-items:baseline; margin-bottom:.5rem;
+  flex-wrap:wrap;
+}
+.daily-detail-header .title{
+  font-weight:700; letter-spacing:.3px;
+}
+.daily-detail-header .meta{
+  opacity:.85; font-size:.875rem;
+}
+
+.daily-detail-scroll{
+  display: flex;
+  overflow-x: auto;         /* 👈 y scroll acá para las horas */
+  gap: .5rem;
+  padding: .25rem 0;
+}
+
+.daily-detail-chip{
+  min-width: 120px;
+  padding: .5rem .6rem;
+  border-radius: .6rem;
+  background: #111827;        /* slate-800 */
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  font-size: .8rem;
+}
+.daily-detail-chip .h-time{ opacity:.85; font-size:.75rem; margin-bottom:.2rem; }
+.daily-detail-chip .h-temp{ font-weight:700; font-size:1rem; margin-bottom:.15rem; }
+
+
+/* ===== Filtro 3/7/14 centrado tipo "segmented" ===== */
+.daily-strip-container .days-filter{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .25rem;                /* espacio entre pills */
+  padding: .35rem;            /* padding interno de la barra */
+  margin: .5rem auto .75rem;  /* centrado horizontal */
+  width: fit-content;         /* se ajusta al contenido */
+  background: #3b82f6;        /* azul de barra */
+  border-radius: 9999px;      /* pill */
+  box-shadow: 0 6px 18px rgba(59,130,246,.35);
+}
+
+/* Botón base dentro de la barra */
+.daily-strip-container .days-filter .btn{
+  border: 0;
+  background: transparent;        /* los ghost quedan "transparentes" */
+  color: #eaf2ff;
+  font-weight: 600;
+  font-size: .9rem;
+  padding: .45rem .9rem;
+  border-radius: 9999px;
+  transition: transform .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Hover sutil en los no seleccionados */
+.daily-strip-container .days-filter .btn.btn-ghost:hover{
+  background: rgba(255,255,255,.15);
+}
+
+/* Estado activo (el rango seleccionado) */
+.daily-strip-container .days-filter .btn.btn-primary{
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+
+/* Accesibilidad: enfoque al navegar con teclado */
+.daily-strip-container .days-filter .btn:focus-visible{
+  box-shadow: 0 0 0 3px rgba(255,255,255,.5), 0 0 0 6px rgba(59,130,246,.6);
+}
+
+/* Deshabilitado mientras carga */
+.daily-strip-container .days-filter .btn:disabled{
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Responsive fino */
+@media (max-width: 480px){
+  .daily-strip-container .days-filter{
+    gap: .15rem;
+    padding: .25rem;
+  }
+  .daily-strip-container .days-filter .btn{
+    font-size: .85rem;
+    padding: .4rem .7rem;
+  }
+}

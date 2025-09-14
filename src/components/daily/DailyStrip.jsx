@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import './DailyStrip.css'
+
 
 const fmtDia = (iso) =>
   new Date(iso).toLocaleDateString("es-AR", { weekday: "short", day: "2-digit" });

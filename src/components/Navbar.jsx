@@ -54,7 +54,9 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-[1200] border-b border-white/10 backdrop-blur bg-[#0b1322]/80">
-      <div className="mx-auto max-w-7xl px-4 h-16 flex items-center justify-between">
+      
+      
+      <div className="mx-auto  max-w-screen-xl px-4 h-16 flex items-center justify-between">
         
         {/* Sección Izquierda - Logo + Temperatura */}
         <div className="flex items-center gap-4 lg:gap-6">

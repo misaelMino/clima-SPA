@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { getCiudades, getDiaria, exportCsv } from "../../api/clima";
 import CitySelect from "../../components/cityselect/CitySelect";
 import DailyStrip from "../../components/daily/DailyStrip";
+import DailyStripPro from "../../components/daily/DailyStripPro";
 import DailyMixedChart from "../../components/dailymixed/DailyMixedChart";
 import TodayKpis from "../../components/todayKPIs/TodayKpis";
 import LoadingPage from "../../components/LoadingPage";
@@ -20,7 +21,10 @@ export default function GraficaDiaria() {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const from = "2025-09-04";
-  const to   = "2025-09-15";
+  const to = "2025-09-15";
+
+
+  const ciudad = { name: "Shanghai", lat: 31.2222, lon: 121.4581 };
 
   // Componente de nieve estático igual que en el login
   const StaticSnow = useMemo(
@@ -40,33 +44,38 @@ export default function GraficaDiaria() {
       try {
         setLoadingCities(true);
         const rows = await getCiudades();
-        setCities(rows || []);
-        if (rows?.length) setCiudadId(rows[0].id);
-      } finally { setLoadingCities(false); }
+        const sorted = (rows || []).sort(
+          (a, b) => a.nombre.localeCompare(b.nombre, "es") // orden alfabético
+        );
+        setCities(sorted);
+        if (sorted.length) setCiudadId(sorted[0].id);
+      } finally {
+        setLoadingCities(false);
+      }
     })();
   }, []);
 
   useEffect(() => {
     if (!ciudadId) return;
-    
+
     // Evitar llamadas duplicadas si ya tenemos datos para esta ciudad
     const currentDataKey = `${ciudadId}-${from}-${to}`;
-    const lastDataKey = localStorage.getItem('lastDataKey');
-    
+    const lastDataKey = localStorage.getItem("lastDataKey");
+
     if (currentDataKey === lastDataKey && data.length > 0) {
       setLoading(false);
       return;
     }
-    
+
     (async () => {
       try {
         setLoading(true);
         const resp = await getDiaria({ ciudad_id: ciudadId, from, to });
         setData(resp || []);
-        localStorage.setItem('lastDataKey', currentDataKey);
+        localStorage.setItem("lastDataKey", currentDataKey);
         setInitialLoadComplete(true);
-      } finally { 
-        setLoading(false); 
+      } finally {
+        setLoading(false);
       }
     })();
   }, [ciudadId, from, to]);
@@ -75,11 +84,12 @@ export default function GraficaDiaria() {
   const hoy = useMemo(() => {
     if (!data?.length) return null;
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
-    const exact = data.find(d => (d.fecha ?? "").startsWith(today));
+    const exact = data.find((d) => (d.fecha ?? "").startsWith(today));
     return exact ?? data[data.length - 1];
   }, [data]);
 
-  if (loading && !initialLoadComplete) return <LoadingPage message="Cargando datos del clima..." />;
+  if (loading && !initialLoadComplete)
+    return <LoadingPage message="Cargando datos del clima..." />;
 
   return (
     <div className="weather-page">
@@ -92,7 +102,6 @@ export default function GraficaDiaria() {
       {StaticSnow}
       <AnimatedGradient />
       <div className="weather-container">
-
         <div className="weather-section">
           <div className="section-title">Ciudad</div>
           {loadingCities ? (
@@ -112,6 +121,10 @@ export default function GraficaDiaria() {
         <div className="weather-section">
           <div className="section-title">Condiciones Actuales</div>
           <TodayKpis d={hoy} />
+        </div>
+        <div className="weather-section ">
+          <div className="section-title">Pronóstico</div>
+          <DailyStripPro lat={ciudad.lat} lon={ciudad.lon} days={7} />
         </div>
 
         <div className="weather-section">

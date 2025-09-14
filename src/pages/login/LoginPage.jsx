@@ -142,36 +142,18 @@ export default function LoginPage() {
             <button
               ref={btnRef}
               type="submit"
-              className="login-button w-full text-white font-bold py-3 px-4 rounded-lg"
+              className="dsadsa login-button w-full text-white font-bold py-3 px-4 rounded-lg "
             >
               <span>Ingresar</span>
-              
             </button>
           </form>
 
           <p className="text-white text-center mt-6">
             ¿No tenés cuenta?{" "}
-            <a href="#" className="register-link font-bold">
+            <a href="/register" className="register-link font-bold">
               Registrate
             </a>
           </p>
-
-          <div className="mt-8 flex justify-center space-x-6">
-            <a
-              href="#"
-              className="social-link text-white"
-              ref={(el) => (socialsRef.current[0] = el)}
-            >
-              <FaFacebookF className="text-2xl" />
-            </a>
-            <a
-              href="#"
-              className="social-link text-white"
-              ref={(el) => (socialsRef.current[1] = el)}
-            >
-              <FaInstagram className="text-2xl" />
-            </a>
-          </div>
         </div>
         {StaticSnow}
         <AnimatedGradient />
