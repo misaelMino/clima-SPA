@@ -230,7 +230,7 @@
 /* Estilos para KPIs Centradas - Formato igual a DailyStrip */
 .kpis-container {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.1rem;
   width: 100%;
   max-width: 100%;
   justify-content: center;

@@ -164,7 +164,7 @@ export default function GraficaDiaria() {
           <>
             {/* KPIs */}
             <div className="weather-section">
-              <div className="section-title">Hoy</div>
+              <div className="section-title">Agregado diario (24 h)</div>
               <TodayKpis d={hoy} />
             </div>
 
