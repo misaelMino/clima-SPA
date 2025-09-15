@@ -2,7 +2,7 @@ services:
   - type: web
     name: front-clima
     env: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build && cp public/static.json dist/
     staticPublishPath: dist
     pullRequestPreviewsEnabled: true
     envVars:
