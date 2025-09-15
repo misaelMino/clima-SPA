@@ -23,7 +23,10 @@ function fmtHourLocal(localTsMs) {
 
 function WindArrow({ deg }) {
   return (
-    <span title={`${deg}°`} style={{ display: "inline-block", transform: `rotate(${deg}deg)` }}>
+    <span
+      title={`${deg}°`}
+      style={{ display: "inline-block", transform: `rotate(${deg}deg)` }}
+    >
       ➤
     </span>
   );
@@ -32,8 +35,12 @@ function WindArrow({ deg }) {
 export default function DailyStripPro({ lat, lon, days = 7 }) {
   const [loading, setLoading] = useState(false);
   const [range, setRange] = useState(days);
-  const [data, setData] = useState([]);       // [{ key, hours:[{localTs,...}], ... }]
-  const [meta, setMeta] = useState({ tzOffset: 0, tzName: "UTC", tzAbbr: "UTC" });
+  const [data, setData] = useState([]); // [{ key, hours:[{localTs,...}], ... }]
+  const [meta, setMeta] = useState({
+    tzOffset: 0,
+    tzName: "UTC",
+    tzAbbr: "UTC",
+  });
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
@@ -42,30 +49,40 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
       try {
         // Pedimos +1 para poder ocultar “hoy” y seguir mostrando 3/7/14
         const resp = await fetchForecast({ lat, lon, days: range + 1 });
-        setMeta({ tzOffset: resp.tzOffset || 0, tzName: resp.tzName, tzAbbr: resp.tzAbbr });
+        setMeta({
+          tzOffset: resp.tzOffset || 0,
+          tzName: resp.tzName,
+          tzAbbr: resp.tzAbbr,
+        });
 
         // “Hoy” local de la ciudad (usando offset de la API)
         const nowLocalMs = Date.now() + (resp.tzOffset || 0) * 1000;
         const todayLocalKey = new Date(nowLocalMs).toISOString().slice(0, 10);
 
         // Sacamos el día actual y nos quedamos con los siguientes
-        const cleaned = resp.days.filter(d => d.key !== todayLocalKey);
+        const cleaned = resp.days.filter((d) => d.key !== todayLocalKey);
 
         setData(cleaned);
 
-        if (selected && !cleaned.find(x => x.key === selected.key)) setSelected(null);
+        if (selected && !cleaned.find((x) => x.key === selected.key))
+          setSelected(null);
       } finally {
         setLoading(false);
       }
     })();
   }, [lat, lon, range]); // eslint-disable-line
 
-  const handlePick = (d) => setSelected((s) => (s && s.key === d.key ? null : d));
+  const handlePick = (d) =>
+    setSelected((s) => (s && s.key === d.key ? null : d));
 
   return (
     <div className="daily-strip-container">
       {/* Filtros 3/7/14 */}
-      <div className="flex gap-2 mb-3 days-filter" role="tablist" aria-label="Rango de pronóstico">
+      <div
+        className="flex gap-2 mb-3 days-filter"
+        role="tablist"
+        aria-label="Rango de pronóstico"
+      >
         {[3, 7, 14].map((n) => (
           <button
             key={n}
@@ -81,26 +98,40 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
       </div>
 
       {/* Cards de días */}
-      <div className="daily-strip-wrapper">
+      <div
+        className="daily-strip-wrapper"
+        style={{
+          justifyContent: data.length < 8 ? "center" : "flex-start",
+        }}
+      >
         {data.map((d) => (
           <div
             key={d.key}
             role="button"
             tabIndex={0}
             onClick={() => handlePick(d)}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handlePick(d)}
+            onKeyDown={(e) =>
+              (e.key === "Enter" || e.key === " ") && handlePick(d)
+            }
             className="daily-card"
-            style={{ cursor: "pointer", outline: selected?.key === d.key ? "2px solid #60a5fa" : "none" }}
+            style={{
+              cursor: "pointer",
+              outline: selected?.key === d.key ? "2px solid #60a5fa" : "none",
+            }}
           >
             <span className="daily-day">{fmtDayLabel(d.key)}</span>
-            <div className="daily-icon">{d.rainSum > 0 ? "🌧️" : d.cloudsAvg > 60 ? "☁️" : "☀️"}</div>
+            <div className="daily-icon">
+              {d.rainSum > 0 ? "🌧️" : d.cloudsAvg > 60 ? "☁️" : "☀️"}
+            </div>
             <div className="flex flex-row">
               <div className="daily-temp-max">{Math.round(d.tmax)}°</div>
               <div className="daily-temp-mid">/</div>
               <div className="daily-temp-min">{Math.round(d.tmin)}°</div>
             </div>
             <div className="daily-wind">💨 {Math.round(d.windMax)} km/h</div>
-            {d.rainSum > 0 && <div className="daily-precip">💧 {d.rainSum.toFixed(1)} mm</div>}
+            {d.rainSum > 0 && (
+              <div className="daily-precip">💧 {d.rainSum.toFixed(1)} mm</div>
+            )}
           </div>
         ))}
       </div>
@@ -109,11 +140,16 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
       {selected && (
         <div className="daily-detail-panel">
           <div className="daily-detail-header">
-            <span className="title">{fmtDayLabel(selected.key).toUpperCase()}</span>
+            <span className="title">
+              {fmtDayLabel(selected.key).toUpperCase()}
+            </span>
             <span className="meta">
-              {meta.tzName} ({meta.tzAbbr}) · Máx {Math.round(selected.tmax)}° · Mín {Math.round(selected.tmin)}° · 💨{" "}
+              {meta.tzName} ({meta.tzAbbr}) · Máx {Math.round(selected.tmax)}° ·
+              Mín {Math.round(selected.tmin)}° · 💨{" "}
               {Math.round(selected.windMax)} km/h
-              {selected.rainSum > 0 ? ` · 💧 ${selected.rainSum.toFixed(1)} mm` : ""}
+              {selected.rainSum > 0
+                ? ` · 💧 ${selected.rainSum.toFixed(1)} mm`
+                : ""}
             </span>
           </div>
 
@@ -128,7 +164,11 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
                   Viento {Math.round(h.wind)} km/h <WindArrow deg={h.windDir} />
                 </div>
                 <div className="h-pp">Prob. {h.ppop ?? 0}%</div>
-                {h.rain + h.showers > 0 && <div className="h-rain">Lluvia {(h.rain + h.showers).toFixed(1)} mm</div>}
+                {h.rain + h.showers > 0 && (
+                  <div className="h-rain">
+                    Lluvia {(h.rain + h.showers).toFixed(1)} mm
+                  </div>
+                )}
               </div>
             ))}
           </div>

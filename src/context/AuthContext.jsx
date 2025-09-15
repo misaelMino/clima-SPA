@@ -16,12 +16,19 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!accessToken;
 
   const login = useCallback(async ({ username, password }) => {
+  try {
     const data = await loginApi({ username, password });
     setAccessToken(data.accessToken);
     setUser(data.user);
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('user', JSON.stringify(data.user));
-  }, []);
+    return data;
+  } catch (e) {
+   
+    throw e;
+  }
+}, []);
+
 
   const logout = useCallback(async () => {
     try { await logoutApi(); } finally {

@@ -19,9 +19,10 @@ import AnimatedGradient from "../../components/AnimatedGradient";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ username: "", password: "" });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-
   // refs para animaciones
   const cardRef = useRef(null);
   const inputsRef = useRef([]);
@@ -86,78 +87,102 @@ export default function LoginPage() {
     return () => ctx.revert();
   }, []);
 
+  const onChange = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value });
+    if (error) setError(null); // limpia error al tipear
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
     try {
       await login(form);
-      navigate("/", { replace: true }); // va al home protegido
+      navigate("/", { replace: true });
     } catch (err) {
-      alert("Credenciales inválidas");
+      console.error("Login error:", err); 
+      const status = err?.response?.status;
+      const apiMsg = err?.response?.data?.message || err?.response?.data?.error;
+      const msg =
+        status === 401 || status === 400
+          ? "Credenciales incorrectas. Revisá usuario y contraseña."
+          : apiMsg || "No pudimos iniciar sesión. Intentá de nuevo.";
+      setError(msg);
+    } finally {
+      setLoading(false); 
     }
   };
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center p-2 relative">
-        <div
-          ref={cardRef}
-          className="dofon login-container z-[50] rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300 hover:scale-101"
-        >
-          <div className="logo-container">
-            <img src={logo} alt="logo" />
-          </div>
-          <h2 className="login-title text-4xl font-extrabold mb-6 text-center">
-            Iniciar sesión
-          </h2>
-
-          <form onSubmit={onSubmit} className="space-y-6">
-            {/* Username */}
-            <div className="relative" ref={(el) => (inputsRef.current[0] = el)}>
-              <FaUser className="absolute left-3 top-3 text-white z-10" />
-              <input
-                type="text"
-                id="username"
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                required
-                className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
-                placeholder="Usuario"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="relative" ref={(el) => (inputsRef.current[1] = el)}>
-              <FaLock className="absolute left-3 top-3 text-white z-10" />
-              <input
-                type="password"
-                id="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-                className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
-                placeholder="Contraseña"
-              />
-            </div>
-
-            <button
-              ref={btnRef}
-              type="submit"
-              className="dsadsa login-button w-full text-white font-bold py-3 px-4 rounded-lg "
-            >
-              <span>Ingresar</span>
-            </button>
-          </form>
-
-          <p className="text-white text-center mt-6">
-            ¿No tenés cuenta?{" "}
-            <a href="/register" className="register-link font-bold">
-              Registrate
-            </a>
-          </p>
+    <div className="min-h-screen flex items-center justify-center p-2 relative">
+      <div
+        ref={cardRef}
+        className="dofon login-container z-[50] rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300 hover:scale-101"
+      >
+        <div className="logo-container">
+          <img src={logo} alt="logo" />
         </div>
-        {StaticSnow}
-        <AnimatedGradient />
+        <h2 className="login-title text-4xl font-extrabold mb-6 text-center">
+          Iniciar sesión
+        </h2>
+
+        <form onSubmit={onSubmit} className="space-y-6" noValidate>
+          {/* Username */}
+          <div className="relative" ref={(el) => (inputsRef.current[0] = el)}>
+            <FaUser className="absolute left-3 top-3 text-white z-10" />
+            <input
+              type="text"
+              id="username"
+              value={form.username}
+              onChange={onChange("username")}
+              required
+              className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
+              placeholder="Usuario"
+              autoComplete="username"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="relative" ref={(el) => (inputsRef.current[1] = el)}>
+            <FaLock className="absolute left-3 top-3 text-white z-10" />
+            <input
+              type="password"
+              id="password"
+              value={form.password}
+              onChange={onChange("password")}
+              required
+              className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
+              placeholder="Contraseña"
+              autoComplete="current-password"
+            />
+          </div>
+
+          {/* Mensaje de error */}
+          {error && (
+            <div className="form-error" role="alert" aria-live="polite">
+              {error}
+            </div>
+          )}
+
+          <button
+            ref={btnRef}
+            type="submit"
+            disabled={loading}
+            className="dsadsa login-button w-full text-white font-bold py-3 px-4 rounded-lg"
+          >
+            <span>{loading ? "Ingresando..." : "Ingresar"}</span>
+          </button>
+        </form>
+
+        <p className="text-white text-center mt-6">
+          ¿No tenés cuenta?{" "}
+          <a href="/register" className="register-link font-bold">
+            Registrate
+          </a>
+        </p>
       </div>
-    </>
+      {StaticSnow}
+      <AnimatedGradient />
+    </div>
   );
 }

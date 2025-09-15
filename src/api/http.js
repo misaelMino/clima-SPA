@@ -1,49 +1,74 @@
 import axios from "axios";
-import { getAuth } from "./authBridge"; 
+import { getAuth } from "./authBridge";
 
 const base = (import.meta.env.VITE_API_CLIMA || "").replace(/\/+$/, "");
 
 export const api = axios.create({
   baseURL: `${base}/api/v1`,
   timeout: 10000,
-  withCredentials: true, 
+  withCredentials: true,
 });
 
+// Utilidad: detectar si la URL es un endpoint de auth
+function isAuthUrl(url = "") {
+  return /\/auth\/(login|register|refresh|logout)(\/)?$/i.test(url);
+}
 
-
-
-// ---- Interceptors ----
-// (1) Request: agrega Authorization si hay accessToken
+// ---------- Interceptors ----------
 api.interceptors.request.use((config) => {
-  const { accessToken } = getAuth();
-  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  const { accessToken } = getAuth() || {};
+  const url = config?.url || "";
+  if (accessToken && !isAuthUrl(url)) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
   return config;
 });
 
-// (2) Response: si 401 (expirado), intenta refresh y reintenta
-let refreshing = null;
+let refreshingPromise = null;
+
 
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const original = error.config;
-    if (error.response?.status !== 401 || original._retry) {
+    const { config, response } = error || {};
+    const status = response?.status;
+    const url = config?.url || "";
+
+    // Si no es 401, ya se reintentó, o es /auth/*, no hacemos refresh.
+    if (status !== 401 || config?._retry || isAuthUrl(url)) {
       return Promise.reject(error);
     }
 
-    if (!refreshing) {
-      refreshing = api.post("/auth/refresh", {}, { withCredentials: true })
+    // Single-flight: una sola promesa de refresh compartida
+    if (!refreshingPromise) {
+      refreshingPromise = api
+        .post("/auth/refresh", {}, { withCredentials: true })
         .then((r) => {
-          const { setAccessToken } = getAuth();
-          setAccessToken(r.data.accessToken);
-          return r.data.accessToken;
+          const token = r?.data?.accessToken;
+          const { setAccessToken } = getAuth() || {};
+          if (token && setAccessToken) setAccessToken(token);
+          return token;
         })
-        .finally(() => { refreshing = null; });
+        .catch((e) => {
+          // Si el refresh falla, propagamos el 401 original
+          throw e;
+        })
+        .finally(() => {
+          refreshingPromise = null;
+        });
     }
 
-    const newAccess = await refreshing;
-    original._retry = true;
-    original.headers.Authorization = `Bearer ${newAccess}`;
-    return api(original);
+    // Esperamos el nuevo token y reintentamos la original
+    const newAccess = await refreshingPromise;
+    if (!newAccess) {
+      // no hay token nuevo -> rechazamos
+      return Promise.reject(error);
+    }
+
+    config._retry = true;
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${newAccess}`;
+    return api(config);
   }
 );

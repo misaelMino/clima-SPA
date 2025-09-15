@@ -6,7 +6,7 @@ body/* ========== DailyStrip base (compartido por DailyStrip y DailyStripPro) ==
   display: flex;
   flex-direction: column;   /* 👈 apilar botones, strip y panel */
   gap: .75rem;
-  overflow: visible;        /* 👈 nada de scroll acá */
+      /* 👈 nada de scroll acá */
   padding: .5rem 0;
 }
 
@@ -17,7 +17,8 @@ body/* ========== DailyStrip base (compartido por DailyStrip y DailyStripPro) ==
 
   overflow-x: auto;         /* 👈 scroll sólo acá */
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0 0.5rem;
 }
 
 

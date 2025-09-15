@@ -1,9 +1,8 @@
-// components/LoadingOverlay.jsx
 import { createPortal } from "react-dom";
 
 export default function LoadingOverlay({
   message = "Actualizando información...",
-  blockUI = false, // ← si querés que bloquee, ponelo en true
+  blockUI = false, 
 }) {
   return createPortal(
     <div
