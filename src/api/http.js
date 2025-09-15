@@ -4,9 +4,11 @@ import { getAuth } from "./authBridge";
 const base = (import.meta.env.VITE_API_CLIMA || "").replace(/\/+$/, "");
 
 export const api = axios.create({
-  baseURL: "/api/v1",        
-  withCredentials: true,     
+  baseURL: `${base}/api/v1`,
+  timeout: 10000,
+  withCredentials: true, 
 });
+
 
 
 

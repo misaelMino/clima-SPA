@@ -3,11 +3,10 @@ import axios from "axios";
 
 const { VITE_API_URL } = import.meta.env;
 
-export const api = axios.create({
-  baseURL: "/api/v1",     // << usa el proxy
-  withCredentials: true,
+const api = axios.create({
+  baseURL: `${VITE_API_URL}/api/v1`,
+  timeout: 10000,
 });
-
 
 // Helper para todas las GET con query params
 const get = async (url, params) => {
