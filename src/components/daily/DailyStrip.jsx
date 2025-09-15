@@ -24,7 +24,7 @@ export default function DailyStrip({ data }) {
             <span className="daily-day">{it.dia}</span>
             <div className="daily-icon">{(it.lluvia+it.chap)>0 ? "🌧️" : (it.nubo>60 ? "☁️" : "☀️")}</div>
             <div className="daily-temp-max">{it.tmax}°</div>
-            <div className="daily-temp-min">min {it.tmin}°</div>
+            <div className="daily-temp-min">{it.tmin}°</div>
             <div className="daily-wind">💨 {it.viento} km/h</div>
             {(it.lluvia+it.chap)>0 && (
               <div className="daily-precip">💧 {(it.lluvia+it.chap).toFixed(1)} mm</div>
