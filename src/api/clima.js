@@ -7,6 +7,7 @@ const get = async (url, params) => {
 
 export const getCiudades    = () => get("/ciudades");
 export const getDiaria      = ({ ciudad_id, from, to }) => get("/diaria", { ciudad_id, from, to });
+export const getSerie = ({ ciudad_id, from, to, granularity }) => get("/serie", { ciudad_id, from, to, granularity });
 export const getDespejados  = (q) => get("/diaria/despejados", q);
 export const getNublados    = (q) => get("/diaria/nublados", q);
 export const getLluviosos   = (q) => get("/diaria/lluviosos", q);

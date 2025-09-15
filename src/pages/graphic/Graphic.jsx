@@ -1,6 +1,6 @@
 // pages/graphic/Graphic.jsx
-import { useEffect, useState, useMemo, number } from "react";
-import { getCiudades, getDiaria, exportCsv } from "../../api/clima";
+import { useEffect, useState, useMemo } from "react";
+import { getCiudades, getDiaria, exportCsv, getSerie } from "../../api/clima";
 import CitySelect from "../../components/cityselect/CitySelect";
 import DailyStrip from "../../components/daily/DailyStrip";
 import DailyStripPro from "../../components/daily/DailyStripPro";
@@ -15,94 +15,88 @@ export default function GraficaDiaria() {
   const [loadingCities, setLoadingCities] = useState(true);
   const [cities, setCities] = useState([]);
   const [ciudadId, setCiudadId] = useState(null);
-  const [ciudadAltitud, setCiudadAltitud] = useState("");
-  const [ciudadLongitud, setCiudadLongitud] = useState("");
+
+  // Histórico “siempre 1d” (para el resto del UI)
   const [data, setData] = useState([]);
+
+  // Serie flexible para el gráfico
+  const [dataGraphic, setDataGraphic] = useState([]);
+
+  const [granularity, setGranularity] = useState("1d");
   const [loading, setLoading] = useState(true);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
   const startTime = Date.now();
   const from = "2025-09-04";
   const to = "2025-09-15";
-  const ciudad = { name: "Shanghai", lat: 31.2222, lon: 121.4581 };
 
-  // Componente de nieve estático igual que en el login
+  // Mapeo simple: ciudad -> zona horaria (ajusta si tus IDs cambian)
+  const cityTimeZones = {
+    1: "Asia/Shanghai",       // Shanghai
+    2: "Europe/Berlin",       // Berlín
+    3: "America/Sao_Paulo",   // Río de Janeiro
+  };
+  const timeZone = cityTimeZones[ciudadId] ?? "UTC";
+
   const StaticSnow = useMemo(
     () => (
-      <SnowV3
-        className="absolute inset-0 z-[1]"
-        density={70}
-        speed={1.1}
-        color="#fff"
-      />
+      <SnowV3 className="absolute inset-0 z-[1]" density={70} speed={1.1} color="#fff" />
     ),
     []
   );
 
+  // Cargar ciudades
   useEffect(() => {
     (async () => {
       try {
         setLoadingCities(true);
         const rows = await getCiudades();
-        const sorted = (rows || []).sort((a, b) =>
-          a.nombre.localeCompare(b.nombre, "es")
-        );
+        const sorted = (rows || []).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
         setCities(sorted);
-        // console.log('rows', rows);
-        // if (sorted.length) setCiudadId(sorted[0].id);
       } finally {
-        // esto es una negrada para que la carga tarde como minimo 2.5seg
         const elapsed = Date.now() - startTime;
         const min = 2800;
         const remaining = Math.max(min - elapsed, 0);
-
-        setTimeout(() => {
-          setLoadingCities(false);
-        }, remaining);
+        setTimeout(() => setLoadingCities(false), remaining);
       }
     })();
   }, []);
 
+  // Cargar datos (diaria 1d + serie por granularidad)
   useEffect(() => {
-    // if (!ciudadId) {
-    //   // ⬅️ sin ciudad, no pidas nada
-    //   setData([]);
-    //   setInitialLoadComplete(false);
-    //   return;
-    // }
+    if (cities && !ciudadId) {
+      setLoading(false);
+      return;
+    }
 
-    const currentDataKey = `${ciudadId}-${from}-${to}`;
+    const currentDataKey = `${ciudadId}-${from}-${to}-${granularity}`;
     const lastDataKey = localStorage.getItem("lastDataKey");
-
-    if (currentDataKey === lastDataKey && data.length > 0) {
+    if (currentDataKey === lastDataKey && data.length > 0 && dataGraphic.length > 0) {
       setLoading(false);
       return;
     }
 
     (async () => {
-      if (cities && !ciudadId) {
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
-        const resp = await getDiaria({ ciudad_id: ciudadId, from, to });
-        setData(resp || []);
+        const respDiaria = await getDiaria({ ciudad_id: ciudadId, from, to }); // siempre 1d
+        const respSerie = await getSerie({ ciudad_id: ciudadId, from, to, granularity });
+
+        setData(respDiaria || []);
+        setDataGraphic(respSerie || []);
         localStorage.setItem("lastDataKey", currentDataKey);
         setInitialLoadComplete(true);
       } finally {
         setLoading(false);
       }
     })();
-  }, [ciudadId, from, to]);
+  }, [ciudadId, from, to, granularity, cities]); // <- incluye granularidad
 
+  // “Hoy” para KPIs
   const hoy = useMemo(() => {
     if (!data?.length) return null;
-    // console.log('data', data)
-
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
     const exact = data.find((d) => (d.fecha ?? "").startsWith(today));
-    // console.log('today?:', exact)
     return exact ?? data[data.length - 1];
   }, [data]);
 
@@ -110,7 +104,6 @@ export default function GraficaDiaria() {
     () => Object.fromEntries(cities.map((c) => [c.id, c])),
     [cities]
   );
-
   const selectedCity = ciudadId != null ? citiesById[ciudadId] : null;
 
   const selectedCoords = useMemo(() => {
@@ -118,31 +111,19 @@ export default function GraficaDiaria() {
     return { lat: selectedCity.latitud, lon: selectedCity.longitud };
   }, [selectedCity]);
 
-  if (cities && loadingCities)
-    return <LoadingPage message="Cargando datos del clima..." />;
-
-  // if (loading && !initialLoadComplete)
-  //   return <LoadingPage message="Cargando datos del clima..." />;
+  if (cities && loadingCities) return <LoadingPage message="Cargando datos del clima..." />;
 
   return (
     <div className="weather-page">
-      {loading && initialLoadComplete && (
-        // <div className="loading-indicator">
-        //   <div className="loading-spinner"></div>
-        //   <span>Actualizando datos...</span>
-        // </div>
-
-        <LoadingPage message="Actualizando información..." />
-      )}
+      {loading && initialLoadComplete && <LoadingPage message="Actualizando información..." />}
       {StaticSnow}
       <AnimatedGradient />
       <div className="weather-container">
+        {/* Ciudad */}
         <div className="weather-section">
           <div className="section-title">Ciudad</div>
           {loadingCities ? (
-            <div className="loading-cities">
-              Cargando ciudades disponibles...
-            </div>
+            <div className="loading-cies">Cargando ciudades disponibles...</div>
           ) : (
             <CitySelect
               cities={cities}
@@ -159,38 +140,57 @@ export default function GraficaDiaria() {
           </div>
         ) : (
           <>
+            {/* KPIs */}
             <div className="weather-section">
               <div className="section-title">Hoy</div>
               <TodayKpis d={hoy} />
             </div>
+
+            {/* Extendido */}
             {selectedCoords && (
-              <div className="weather-section ">
+              <div className="weather-section">
                 <div className="section-title">Pronóstico extendido</div>
-                <DailyStripPro
-                  lat={selectedCoords.lat}
-                  lon={selectedCoords.lon}
-                  days={7}
-                />
+                <DailyStripPro lat={selectedCoords.lat} lon={selectedCoords.lon} days={7} />
               </div>
             )}
 
+            {/* Histórico diario (1d fijo) */}
             <div className="weather-section">
               <div className="section-title">Condiciones Previas</div>
               <DailyStrip data={data} />
             </div>
 
+            {/* Gráfico serie (granularidad seleccionable) */}
             <div className="weather-section">
-              <div className="chart-header">
+              <div className="chart-header items-center flex gap-2">
                 <div className="section-title">Tendencias y Patrones</div>
+
+                <select
+                  className="ml-2 rounded-lg border px-2 py-1 text-sm bg-white/90 text-gray-700"
+                  value={granularity}
+                  onChange={(e) => setGranularity(e.target.value)}
+                >
+                  <option value="30m">30 minutos</option>
+                  <option value="1h">1 hora</option>
+                  <option value="1d">1 día</option>
+                  <option value="1w">1 semana</option>
+                  <option value="1mo">1 mes</option>
+                </select>
+
                 <button
-                  className="export-button-small"
+                  className="export-button-small ml-auto"
                   onClick={() => exportCsv({ ciudad_id: ciudadId, from, to })}
                   title="Exportar datos a CSV"
                 >
                   📥 CSV
                 </button>
               </div>
-              <DailyMixedChart data={data} />
+
+              <DailyMixedChart
+                data={dataGraphic}
+                granularity={granularity}
+                timeZone={timeZone} // <- zona horaria de la ciudad
+              />
             </div>
           </>
         )}
