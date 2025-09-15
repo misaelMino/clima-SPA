@@ -48,7 +48,7 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
       setLoading(true);
       try {
         // Pedimos +1 para poder ocultar “hoy” y seguir mostrando 3/7/14
-        const resp = await fetchForecast({ lat, lon, days: range + 1 });
+        const resp = await fetchForecast({ lat, lon, days: range });
         setMeta({
           tzOffset: resp.tzOffset || 0,
           tzName: resp.tzName,
@@ -56,13 +56,13 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
         });
 
         // “Hoy” local de la ciudad (usando offset de la API)
-        const nowLocalMs = Date.now() + (resp.tzOffset || 0) * 1000;
-        const todayLocalKey = new Date(nowLocalMs).toISOString().slice(0, 10);
+        // const nowLocalMs = Date.now() + (resp.tzOffset || 0) * 1000;
+        // const todayLocalKey = new Date(nowLocalMs).toISOString().slice(0, 10);
 
         // Sacamos el día actual y nos quedamos con los siguientes
-        const cleaned = resp.days.filter((d) => d.key !== todayLocalKey);
+        // const cleaned = resp.days.filter((d) => d.key !== todayLocalKey);
 
-        setData(cleaned);
+        setData(resp.days);
 
         if (selected && !cleaned.find((x) => x.key === selected.key))
           setSelected(null);
@@ -74,6 +74,12 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
 
   const handlePick = (d) =>
     setSelected((s) => (s && s.key === d.key ? null : d));
+
+  function getDayLabelByIndex(dKey, index) {
+    if (index === 0) return "HOY";
+    if (index === 1) return "MAÑANA";
+    return fmtDayLabel(dKey); 
+  }
 
   return (
     <div className="daily-strip-container">
@@ -104,7 +110,7 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
           justifyContent: data.length < 8 ? "center" : "flex-start",
         }}
       >
-        {data.map((d) => (
+        {data.map((d, i) => (
           <div
             key={d.key}
             role="button"
@@ -119,7 +125,7 @@ export default function DailyStripPro({ lat, lon, days = 7 }) {
               outline: selected?.key === d.key ? "2px solid #60a5fa" : "none",
             }}
           >
-            <span className="daily-day">{fmtDayLabel(d.key)}</span>
+            <span className="daily-day">{getDayLabelByIndex(d.key, i)}</span>
             <div className="daily-icon">
               {d.rainSum > 0 ? "🌧️" : d.cloudsAvg > 60 ? "☁️" : "☀️"}
             </div>

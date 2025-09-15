@@ -117,7 +117,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-2 relative">
       <div
         ref={cardRef}
-        className="dofon login-container z-[50] rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300 hover:scale-101"
+        className="dofon login-container z-[50] rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300"
       >
         <div className="logo-container">
           <img src={logo} alt="logo" />
