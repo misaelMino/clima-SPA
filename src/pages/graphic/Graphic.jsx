@@ -9,6 +9,7 @@ import TodayKpis from "../../components/todayKPIs/TodayKpis";
 import LoadingPage from "../../components/LoadingPage";
 import SnowV3 from "../../components/SnowV3";
 import AnimatedGradient from "../../components/AnimatedGradient";
+import LoadingOverlay from "../../components/LoadingOverlay";
 import "./Graphic.css";
 
 export default function GraficaDiaria() {
@@ -32,15 +33,20 @@ export default function GraficaDiaria() {
 
   // Mapeo simple: ciudad -> zona horaria (ajusta si tus IDs cambian)
   const cityTimeZones = {
-    1: "Asia/Shanghai",       // Shanghai
-    2: "Europe/Berlin",       // Berlín
-    3: "America/Sao_Paulo",   // Río de Janeiro
+    1: "Asia/Shanghai", // Shanghai
+    2: "Europe/Berlin", // Berlín
+    3: "America/Sao_Paulo", // Río de Janeiro
   };
   const timeZone = cityTimeZones[ciudadId] ?? "UTC";
 
   const StaticSnow = useMemo(
     () => (
-      <SnowV3 className="absolute inset-0 z-[1]" density={70} speed={1.1} color="#fff" />
+      <SnowV3
+        className="absolute inset-0 z-[1]"
+        density={70}
+        speed={1.1}
+        color="#fff"
+      />
     ),
     []
   );
@@ -51,7 +57,9 @@ export default function GraficaDiaria() {
       try {
         setLoadingCities(true);
         const rows = await getCiudades();
-        const sorted = (rows || []).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+        const sorted = (rows || []).sort((a, b) =>
+          a.nombre.localeCompare(b.nombre, "es")
+        );
         setCities(sorted);
       } finally {
         const elapsed = Date.now() - startTime;
@@ -62,6 +70,8 @@ export default function GraficaDiaria() {
     })();
   }, []);
 
+
+
   // Cargar datos (diaria 1d + serie por granularidad)
   useEffect(() => {
     if (cities && !ciudadId) {
@@ -71,7 +81,11 @@ export default function GraficaDiaria() {
 
     const currentDataKey = `${ciudadId}-${from}-${to}-${granularity}`;
     const lastDataKey = localStorage.getItem("lastDataKey");
-    if (currentDataKey === lastDataKey && data.length > 0 && dataGraphic.length > 0) {
+    if (
+      currentDataKey === lastDataKey &&
+      data.length > 0 &&
+      dataGraphic.length > 0
+    ) {
       setLoading(false);
       return;
     }
@@ -80,7 +94,12 @@ export default function GraficaDiaria() {
       try {
         setLoading(true);
         const respDiaria = await getDiaria({ ciudad_id: ciudadId, from, to }); // siempre 1d
-        const respSerie = await getSerie({ ciudad_id: ciudadId, from, to, granularity });
+        const respSerie = await getSerie({
+          ciudad_id: ciudadId,
+          from,
+          to,
+          granularity,
+        });
 
         setData(respDiaria || []);
         setDataGraphic(respSerie || []);
@@ -111,11 +130,14 @@ export default function GraficaDiaria() {
     return { lat: selectedCity.latitud, lon: selectedCity.longitud };
   }, [selectedCity]);
 
-  if (cities && loadingCities) return <LoadingPage message="Cargando datos del clima..." />;
+  if (cities && loadingCities)
+    return <LoadingPage message="Cargando datos del clima..." />;
 
   return (
     <div className="weather-page">
-      {loading && initialLoadComplete && <LoadingPage message="Actualizando información..." />}
+      {/* {loading && <LoadingPage overlay message="Actualizando información..." />} */}
+      {loading && <LoadingOverlay message="Actualizando información..." />}
+
       {StaticSnow}
       <AnimatedGradient />
       <div className="weather-container">
@@ -150,7 +172,11 @@ export default function GraficaDiaria() {
             {selectedCoords && (
               <div className="weather-section">
                 <div className="section-title">Pronóstico extendido</div>
-                <DailyStripPro lat={selectedCoords.lat} lon={selectedCoords.lon} days={7} />
+                <DailyStripPro
+                  lat={selectedCoords.lat}
+                  lon={selectedCoords.lon}
+                  days={7}
+                />
               </div>
             )}
 
@@ -168,7 +194,12 @@ export default function GraficaDiaria() {
                 <select
                   className="ml-2 rounded-lg border px-2 py-1 text-sm bg-white/90 text-gray-700"
                   value={granularity}
-                  onChange={(e) => setGranularity(e.target.value)}
+                  onChange={(e) => {
+                    const g = e.target.value;
+                    setLoading(true); // ← muestra <LoadingPage/>
+                    setDataGraphic([]); // ← evita que quede pintada la serie anterior
+                    setGranularity(g); // ← dispara el useEffect con la nueva granularidad
+                  }}
                 >
                   <option value="30m">30 minutos</option>
                   <option value="1h">1 hora</option>
@@ -189,7 +220,7 @@ export default function GraficaDiaria() {
               <DailyMixedChart
                 data={dataGraphic}
                 granularity={granularity}
-                timeZone={timeZone} // <- zona horaria de la ciudad
+                timeZone={timeZone}
               />
             </div>
           </>
