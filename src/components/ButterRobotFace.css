@@ -1,0 +1,149 @@
+.bbp-wrap {
+  --metal-light: #d3d8dc;
+  --metal-mid: #b4bcc2;
+  --metal-dark: #7e8489;
+  --sink-bg: #b4bcc2;
+  --ring-outer: #0b0f12;
+  --ring-inner: #1c2c33;
+  --glass-cyan: #bdf2ff;
+  --glass-mid: #6fd0e6;
+  --glass-deep: #0b1c23;
+  --led: #ff2a2a;
+  --cable1: #750e00;
+  --cable2: #e9c603;
+  --scale: 6;
+  position: relative;
+  width: calc(40px * var(--scale));
+  height: calc(40px * var(--scale));
+  margin: 24px auto 0;
+  image-rendering: pixelated;
+  --px: calc(1px * var(--scale));
+}
+.bbp-svg {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.bbp-led {
+  position: absolute;
+  right: calc(4px * var(--scale));
+  top: calc(-1px * var(--scale));
+  width: calc(2px * var(--scale));
+  height: calc(2px * var(--scale));
+  background: var(--led);
+  box-shadow: 0 0 calc(1px * var(--scale)) rgba(255, 42, 42, 0.9),
+    0 0 calc(2px * var(--scale)) rgba(255, 42, 42, 0.6);
+  animation: bbp-blink 3.2s infinite steps(1, end);
+}
+.bbp-cable {
+  position: absolute;
+  top: calc(0px * var(--scale));
+  width: calc(1px * var(--scale));
+  height: calc(7px * var(--scale));
+}
+.bbp-cable--left {
+  left: calc(8px * var(--scale));
+  background: var(--cable1);
+}
+.bbp-cable--left::after {
+  content: "";
+  position: absolute;
+  left: calc(2px * var(--scale));
+  width: calc(1px * var(--scale));
+  height: 100%;
+  background: var(--cable2);
+}
+@keyframes bbp-blink {
+  0%,
+  92%,
+  100% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 0.25;
+  }
+  96% {
+    opacity: 1;
+  }
+}
+
+/* Contenedor del parpadeo (cierra fuerte) */
+.bbp-eye-blink {
+  transform-box: fill-box;
+  transform-origin: 50% 45%; /* un poco más alto para efecto “párpado” */
+  animation: bbp-eye-blink 3.6s infinite;
+}
+
+/* Pulso suave (en el hijo), no se pisa con el blink */
+.bbp-eye-pulse {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: bbp-eye-pulse 2.8s steps(6, end) infinite; /* <- pasos */
+}
+
+
+
+/* Cierre/ apertura (más contundente) */
+@keyframes bbp-eye-blink {
+  0%,
+  84%,
+  100% {
+    transform: scaleY(1);
+  }
+  86% {
+    transform: scaleY(0.05);
+  } /* ~5% de alto (casi cerrado) */
+  90% {
+    transform: scaleY(1);
+  }
+}
+
+/* Pulso suave */
+@keyframes bbp-eye-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+
+
+/* Scanlines opcionales (toggle con .is-crt en el wrapper) */
+.bbp-crt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.6) 0,
+    rgba(0, 0, 0, 0.6) calc(var(--px) * 0.5),
+    transparent calc(var(--px) * 0.5),
+    transparent calc(var(--px) * 2)
+  );
+  image-rendering: pixelated;
+  display: none;
+}
+.bbp-wrap.is-crt .bbp-crt {
+  display: block;
+}
+
+
+
+/* Sombra escalonada (bloques) */
+.bbp-shadow-steps {
+  position: absolute;
+  left: calc(2px * var(--scale));
+  top: calc(38px * var(--scale));
+  width: calc(36px * var(--scale));
+  height: calc(2px * var(--scale));
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: calc(1px * var(--scale)) calc(1px * var(--scale)) 0
+      rgba(0, 0, 0, 0.3),
+    calc(2px * var(--scale)) calc(2px * var(--scale)) 0 rgba(0, 0, 0, 0.25),
+    calc(3px * var(--scale)) calc(3px * var(--scale)) 0 rgba(0, 0, 0, 0.2);
+  image-rendering: pixelated;
+}

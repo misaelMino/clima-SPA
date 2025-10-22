@@ -1,0 +1,59 @@
+.bbp-wrap {
+  --metal-light: #d3d8dc;
+  --metal-mid: #b4bcc2;
+  --metal-dark: #7e8489;
+  --sink-bg: #b4bcc2;
+  --ring-outer: #0b0f12;
+  --ring-inner: #1c2c33;
+  --glass-cyan: #bdf2ff;
+  --glass-mid: #6fd0e6;
+  --glass-deep: #0b1c23;
+  --led: #ff2a2a;
+  --cable1: #750e00;
+  --cable2: #e9c603;
+  --scale: 6;
+  position: relative;
+  width: calc(40px * var(--scale));
+  height: calc(40px * var(--scale));
+  margin: 24px auto 0;
+  image-rendering: pixelated;
+}
+.bbp-svg {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.bbp-led {
+  position: absolute;
+  right: calc(4px * var(--scale));
+  top: calc(-1px * var(--scale));
+  width: calc(2px * var(--scale));
+  height: calc(2px * var(--scale));
+  background: var(--led);
+  box-shadow: 0 0 calc(1px * var(--scale)) rgba(255, 42, 42, 0.9),
+              0 0 calc(2px * var(--scale)) rgba(255, 42, 42, 0.6);
+  animation: bbp-blink 3.2s infinite steps(1, end);
+}
+.bbp-cable {
+  position: absolute;
+  top: calc(0px * var(--scale));
+  width: calc(1px * var(--scale));
+  height: calc(7px * var(--scale));
+}
+.bbp-cable--left {
+  left: calc(8px * var(--scale));
+  background: var(--cable1);
+}
+.bbp-cable--left::after {
+  content: "";
+  position: absolute;
+  left: calc(2px * var(--scale));
+  width: calc(1px * var(--scale));
+  height: 100%;
+  background: var(--cable2);
+}
+@keyframes bbp-blink {
+  0%, 92%, 100% { opacity: 1; }
+  94% { opacity: .25; }
+  96% { opacity: 1; }
+}

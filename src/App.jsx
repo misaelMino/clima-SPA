@@ -3,24 +3,27 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 import LoginPage from "./pages/login/LoginPage.jsx";
 import RegisterPage from "./pages/register/RegisterPage.jsx"
-import GraficaDiaria from "./pages/graphic/Graphic.jsx";
-import Layout from "./components/Layout.jsx";
+
+// import Layout from "./components/Layout.jsx";
+import Home from "./pages/Home.jsx"
 
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
+  // { path: "/login", element: <GraficaDiaria /> },
+  // { path: "/login", element: <Home/> },
   { path: "/register", element: <RegisterPage /> },
 
-  {
-    element: <PrivateRoute />,
-    children: [
-      {
-        element: <Layout />,
-        children: [
-          { path: "/", element: <GraficaDiaria /> }
-        ],
-      },
-    ],
-  },
+  // {
+  //   element: <PrivateRoute />,
+  //   children: [
+  //     {
+  //       element: <Layout />,
+  //       children: [
+  //         { path: "/", element: <GraficaDiaria /> }
+  //       ],
+  //     },
+  //   ],
+  // },
 ]);
 
 export default function App() {

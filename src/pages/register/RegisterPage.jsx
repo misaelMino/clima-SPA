@@ -11,8 +11,6 @@ import { useAuth } from "../../context/AuthContext";
 import { registerApi } from "../../api/auth";
 
 import logo from "../../assets/logo1.png";
-import SnowV3 from "../../components/SnowV3";
-import AnimatedGradient from "../../components/AnimatedGradient";
 
 import "./RegisterPage.css";   // estilos de esta pantalla
 import "../login/LoginPage.css"; // reutilizamos estilos del login (dofon, inputs, etc.)
@@ -31,17 +29,17 @@ export default function RegisterPage() {
   const inputsRef = useRef([]);
   const btnRef = useRef(null);
 
-  const StaticSnow = useMemo(
-    () => (
-      <SnowV3
-        className="absolute inset-0 z-[1]"
-        density={70}
-        speed={1.1}
-        color="#fff"
-      />
-    ),
-    []
-  );
+  // const StaticSnow = useMemo(
+  //   () => (
+  //     <SnowV3
+  //       className="absolute inset-0 z-[1]"
+  //       density={70}
+  //       speed={1.1}
+  //       color="#fff"
+  //     />
+  //   ),
+  //   []
+  // );
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -204,7 +202,6 @@ export default function RegisterPage() {
         </div>
 
         {StaticSnow}
-        <AnimatedGradient />
       </div>
 
       {/* Modal de éxito */}

@@ -1,0 +1,21 @@
+:root {
+  --lens: 128px;
+}
+@media (min-width: 1024px) {
+  :root {
+    --lens: 220px;
+  }
+}
+.cam-shell {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+.cam-lens {
+  width: var(--lens);
+  height: var(--lens);
+  border-radius: 9999px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 3px #0a151c, 0 0 22px rgba(146, 230, 255, 0.25);
+}

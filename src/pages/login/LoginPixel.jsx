@@ -1,9 +1,14 @@
+// ============================
+// File: src/pages/LoginPixel.jsx
+// Description: Login sin nieve, estilo pixel‑art/retro inspirado en ButterBoi
+// Reemplaza tu Login.jsx por este (o crea una nueva ruta y usa este componente)
+// Requiere Tailwind y (opcional) fuente "Press Start 2P" en index.html
+// ============================
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo1.png";
 import "./login-pixel.css";
-import ButterRobotFace from "../../components/ButterRobotFace";
 
 export default function LoginPixel() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -43,28 +48,23 @@ export default function LoginPixel() {
   return (
     <div className="min-h-screen w-full bg-grid flex items-center justify-center p-4">
       {/* Contenedor principal con borde pixelado */}
-      <div className="pixel-card w-full max-w-md ">
-        <div className="mb-6">
-          <ButterRobotFace></ButterRobotFace>
-        </div>
+      <div className="pixel-card w-full max-w-md">
         {/* Branding */}
         <div className="flex flex-col items-center gap-3">
-          {/* <img src={logo} alt="ButterBoi" className="h-14 drop-shadow-sm select-none" draggable={false} /> */}
+          <img src={logo} alt="ButterBoi" className="h-14 drop-shadow-sm select-none" draggable={false} />
           <h1 className="retro-title text-center">BUTTERBOI • LOGIN</h1>
         </div>
 
         {/* "Lente" redondo dentro de carcasa cuadrada */}
-        {/* <div className="cam-shell mt-5">
+        <div className="cam-shell mt-5">
           <div className="cam-lens">
             <div className="cam-glint" />
           </div>
-        </div> */}
+        </div>
 
         {/* Formulario */}
         <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
-          <label className="retro-label" htmlFor="username">
-            Usuario
-          </label>
+          <label className="retro-label" htmlFor="username">Usuario</label>
           <input
             ref={userRef}
             id="username"
@@ -77,9 +77,7 @@ export default function LoginPixel() {
             required
           />
 
-          <label className="retro-label mt-2" htmlFor="password">
-            Contraseña
-          </label>
+          <label className="retro-label mt-2" htmlFor="password">Contraseña</label>
           <div className="relative">
             <input
               id="password"
@@ -95,18 +93,14 @@ export default function LoginPixel() {
               type="button"
               className="retro-ghost-btn absolute right-2 top-1/2 -translate-y-1/2"
               onClick={() => setShowPass((s) => !s)}
-              aria-label={
-                showPass ? "Ocultar contraseña" : "Mostrar contraseña"
-              }
+              aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
             >
               {showPass ? "HIDE" : "SHOW"}
             </button>
           </div>
 
           {error && (
-            <div className="retro-error" role="alert" aria-live="polite">
-              {error}
-            </div>
+            <div className="retro-error" role="alert" aria-live="polite">{error}</div>
           )}
 
           <button type="submit" disabled={loading} className="retro-btn mt-2">
@@ -115,12 +109,10 @@ export default function LoginPixel() {
         </form>
 
         <p className="mt-6 text-center text-[11px] tracking-wide text-zinc-300">
-          ¿No tenés cuenta?{" "}
-          <a href="/register" className="retro-link">
-            REGISTRATE
-          </a>
+          ¿No tenés cuenta? <a href="/register" className="retro-link">REGISTRATE</a>
         </p>
       </div>
     </div>
   );
 }
+

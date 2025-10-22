@@ -1,0 +1,53 @@
+.retro-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e5f4ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  transition: 0.2s;
+}
+.retro-input:focus {
+  border-color: #92e6ff;
+  box-shadow: 0 0 0 3px rgba(146, 230, 255, 0.16);
+}
+.retro-btn {
+  width: 100%;
+  font-family: "Press Start 2P", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  background: linear-gradient(180deg, #bfff0a, #91db00);
+  color: #0a1400;
+  border: 2px solid #7fc600;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+
+/* Minimal shared styles for inputs & buttons (Press Start 2P vibe) */
+.retro-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #e5f4ff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  transition: 0.2s;
+}
+.retro-input:focus {
+  border-color: #92e6ff;
+  box-shadow: 0 0 0 3px rgba(146, 230, 255, 0.16);
+}
+.retro-btn {
+  width: 100%;
+  font-family: "Press Start 2P", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  background: linear-gradient(180deg, #bfff0a, #91db00);
+  color: #0a1400;
+  border: 2px solid #7fc600;
+  border-radius: 10px;
+  padding: 10px 12px;
+}

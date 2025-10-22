@@ -1,0 +1,68 @@
+:root {
+  --dpad: 140px;
+}
+@media (min-width: 768px) {
+  :root {
+    --dpad: 180px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --dpad: 220px;
+  }
+}
+.dpad {
+  position: relative;
+  width: var(--dpad);
+  height: var(--dpad);
+}
+.dpad-btn {
+  position: absolute;
+  width: calc(var(--dpad) / 3);
+  height: calc(var(--dpad) / 3);
+  background: #111;
+  border: 2px solid #444;
+  box-shadow: 0 2px 0 #000, inset 0 0 0 2px #2b2b2b;
+}
+.dpad-btn:hover {
+  filter: brightness(1.2);
+}
+.dpad-btn:active {
+  transform: translateY(1px);
+}
+.dpad-btn.up {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  background: #0b0f16;
+  border-color: #6aaec7;
+  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+}
+.dpad-btn.left {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+  background: #0b0f16;
+  border-color: #6aaec7;
+  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+}
+.dpad-btn.right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+  background: #0b0f16;
+  border-color: #6aaec7;
+  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+}
+.dpad-btn.down {
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  background: #0b0f16;
+  border-color: #6aaec7;
+  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+}
