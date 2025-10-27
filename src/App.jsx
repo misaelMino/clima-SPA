@@ -10,7 +10,7 @@ import Home from "./pages/Home.jsx"
 const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   // { path: "/login", element: <GraficaDiaria /> },
-  // { path: "/login", element: <Home/> },
+  { path: "/home", element: <Home/> },
   { path: "/register", element: <RegisterPage /> },
 
   // {

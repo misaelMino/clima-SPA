@@ -1,68 +1,240 @@
 :root {
-  --dpad: 140px;
+  --dpad-size: 200px;
+  --btn-gap: 2px; /* separación entre botones */
+  --ring-pad: 3px; /* separación del aro respecto al borde del botón */
+  --arrow-scale: 0.7; /* tamaño relativo del sprite respecto al aro */
+  --sprite-pad: 2px; /* padding interno extra para el sprite */
 }
-@media (min-width: 768px) {
-  :root {
-    --dpad: 180px;
-  }
+
+/* Fondo del conjunto */
+.dpad-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 14px;
+  background: #0b0f16;
+  border: 3px solid #1c2b33;
+  box-shadow: inset 0 0 0 2px #2a3a44, 0 2px 0 #000;
+  border-radius: 8px;
+  image-rendering: pixelated;
 }
-@media (min-width: 1024px) {
-  :root {
-    --dpad: 220px;
-  }
-}
+
+/* Estructura de cruz */
 .dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: var(--dpad-size);
+  height: var(--dpad-size);
+  gap: var(--btn-gap);
   position: relative;
-  width: var(--dpad);
-  height: var(--dpad);
+  place-items: center;
+  background: linear-gradient(90deg, #0f1b26 49%, #1a2b3a 50%, #0f1b26 51%),
+    linear-gradient(#0f1b26 49%, #1a2b3a 50%, #0f1b26 51%);
+  background-size: 100% 100%;
+  image-rendering: pixelated;
 }
+
+/* --- Botones direccionales --- */
 .dpad-btn {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative;
+  display: grid;
+  place-items: center;
+  image-rendering: pixelated;
+  transition: transform 80ms ease;
+}
+
+/* Aro circular centrado */
+.dpad-btn::before {
+  content: "";
   position: absolute;
-  width: calc(var(--dpad) / 3);
-  height: calc(var(--dpad) / 3);
-  background: #111;
-  border: 2px solid #444;
-  box-shadow: 0 2px 0 #000, inset 0 0 0 2px #2b2b2b;
+  left: 50%;
+  top: 50%;
+  width: calc(100% - var(--ring-pad) * 2);
+  height: calc(100% - var(--ring-pad) * 2);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 45%,
+    #1e2a35 0%,
+    #22313f 55%,
+    #0b0f16 100%
+  );
+  border: 2px solid #3c4f5a;
+  box-shadow: inset 0 0 0 2px #1a2a33, 0 0 4px #000a;
+  transition: filter 120ms ease, box-shadow 120ms ease;
+  pointer-events: none;
 }
-.dpad-btn:hover {
-  filter: brightness(1.2);
+
+/* Sprite (flecha) centrado y contenido dentro del aro */
+.dpad-btn .skin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* El tamaño del sprite depende del aro, del scale y de un padding extra */
+  width: calc(
+    (100% - var(--ring-pad) * 2) * var(--arrow-scale) - var(--sprite-pad) * 2
+  );
+  height: calc(
+    (100% - var(--ring-pad) * 2) * var(--arrow-scale) - var(--sprite-pad) * 2
+  );
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain; /* <— nunca se corta dentro del círculo */
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 1px #000a);
+  transition: filter 120ms ease, transform 80ms ease;
 }
+
+/* Posiciones y rotaciones */
+.dpad-btn.up {
+  grid-column: 2;
+  grid-row: 1;
+  --rot: 0deg;
+}
+.dpad-btn.left {
+  grid-column: 1;
+  grid-row: 2;
+  --rot: -90deg;
+}
+.dpad-btn.right {
+  grid-column: 3;
+  grid-row: 2;
+  --rot: 90deg;
+}
+.dpad-btn.down {
+  grid-column: 2;
+  grid-row: 3;
+  --rot: 180deg;
+}
+
+/* Centro de la cruz (decorativo) */
+.dpad-center {
+  grid-column: 2;
+  grid-row: 2;
+  width: 70%;
+  height: 70%;
+  background: #0f1822;
+  border: 2px solid #1f2e38;
+  box-shadow: inset 0 0 0 2px #2a3a44, 0 0 6px #000 inset;
+  border-radius: 6px;
+  image-rendering: pixelated;
+}
+
+/* Estados: hover/active/focus */
+.dpad-btn:hover::before {
+  filter: brightness(1.12);
+}
+.dpad-btn:hover .skin {
+  filter: brightness(1.08);
+}
+
 .dpad-btn:active {
   transform: translateY(1px);
 }
-.dpad-btn.up {
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-  background: #0b0f16;
-  border-color: #6aaec7;
-  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+.dpad-btn:active::before {
+  filter: brightness(0.95);
 }
-.dpad-btn.left {
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
-  background: #0b0f16;
-  border-color: #6aaec7;
-  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+.dpad-btn:active .skin {
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.9);
 }
-.dpad-btn.right {
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  background: #0b0f16;
-  border-color: #6aaec7;
-  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+
+.dpad-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #7bd4ff66;
+  border-radius: 6px;
 }
-.dpad-btn.down {
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
-  background: #0b0f16;
-  border-color: #6aaec7;
-  box-shadow: 0 0 0 3px #6aaec733, inset 0 0 0 2px #1f2b33;
+
+/* --- Botones verdes inferiores --- */
+.retro-btn {
+  display: inline-grid;
+  place-items: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border: 0;
+  box-shadow: 0 2px 0 #000, inset 0 0 0 2px #1f2b33;
+  transition: transform 80ms ease, filter 120ms ease;
+}
+
+.retro-green {
+  color: #0b0f16;
+  background: radial-gradient(
+    120% 120% at 50% 20%,
+    #dbff68 0%,
+    #b8ff3b 35%,
+    #9fe61a 70%,
+    #84c400 100%
+  );
+  border-radius: 10px;
+  box-shadow: 0 2px 0 #000, inset 0 0 0 2px #2a3a1a, 0 0 12px #9cff2a55;
+}
+.retro-green:hover {
+  filter: brightness(1.05);
+}
+.retro-green:active {
+  transform: translateY(1px);
+}
+
+.dpad-btn.up .skin {
+  transform: translate(-50%, -65%) rotate(0deg);
+}
+.dpad-btn.down .skin {
+  transform: translate(-50%, -35%) rotate(180deg);
+}
+.dpad-btn.left .skin {
+  transform: translate(-65%, -50%) rotate(-90deg);
+}
+.dpad-btn.right .skin {
+  transform: translate(-35%, -50%) rotate(90deg);
+}
+
+/* Quitar el focus ring por completo en estos botones del mando */
+.dpad-btn:focus,
+.dpad-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Efecto “hundido” disparado por teclado (clase .pressed) */
+.dpad-btn.pressed {
+  transform: translateY(1px);
+}
+.dpad-btn.pressed::before {
+  filter: brightness(0.95);
+}
+.dpad-btn.pressed .skin {
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.9);
+}
+
+
+/* Unificar efecto de click y teclado */
+.dpad-btn:active,
+.dpad-btn.pressed {
+  transform: translateY(1px);
+  transition: transform 80ms ease;
+}
+.dpad-btn:active::before,
+.dpad-btn.pressed::before {
+  filter: brightness(0.95);
+  transition: filter 80ms ease;
+}
+.dpad-btn:active .skin,
+.dpad-btn.pressed .skin {
+  transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.9);
+  transition: transform 80ms ease;
+}
+
+/* Evitar focus ring en el mando (ya tenés navegación por teclado global) */
+.dpad-btn:focus,
+.dpad-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
