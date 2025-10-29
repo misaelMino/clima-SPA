@@ -1,77 +1,41 @@
-import { message } from 'antd';
-import { createContext, useState } from 'react';
-import { auth0Balance, auth0Transactions } from '../api/auth0Api';
-import { useAuth0 } from '@auth0/auth0-react';
+import { createContext, useState, useContext, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+import { getRobotTransactions, getRobotBalance } from "../api/robotApi";
 
 export const GlobalContext = createContext([]);
 
 export const GlobalProvider = ({ children }) => {
-  const [messageApi, contextHolder] = message.useMessage();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [balance, setBalance] = useState(0);
-  const [transfers, setTransfers] = useState([]);
-  const [picture, setPicture] = useState('');
-  const [totpToken, setTotpToken] = useState('');
+  const { user, isAuthenticated, getToken } = useAuth();
+
   const [loadingData, setLoadingData] = useState(false);
-  const { user, isAuthenticated } = useAuth0();
+  const [transactions, setTransactions] = useState([]);
+  const [balance, setBalance] = useState(0);
 
   const refreshData = async () => {
+    if (!isAuthenticated || !user?.email) return;
     setLoadingData(true);
     try {
-      if (isAuthenticated && user?.email) {
-        const resTransactions = await auth0Transactions({ email: user.email });
-        const resTransactionsData = resTransactions?.data;
-
-        const resBalance = await auth0Balance({ email: user.email });
-        const resBalanceData = resBalance?.data;
-
-        if (resTransactionsData?.success && resBalanceData?.success) {
-          const transactions = resTransactionsData.transactions || [];
-          setName(resTransactionsData.user?.name || '');
-          setUsername(resTransactionsData.user?.username || '');
-          setBalance(resBalanceData.user?.balance || 0);
-          setTransfers(Array.isArray(transactions) ? transactions : []);
-          setPicture(user?.picture);
-        } else {
-          messageApi.error('Error al obtener datos de usuario');
-        }
-      }
-    } catch (err) {
-      const msg =
-        err?.response?.data?.message || 'Error al obtener datos de usuario';
-      messageApi.error(msg);
+      const token = await getToken();
+      const [resT, resB] = await Promise.all([
+        getRobotTransactions({ email: user.email, token }),
+        getRobotBalance({ email: user.email, token }),
+      ]);
+      setTransactions(resT || []);
+      setBalance(resB?.amount ?? 0);
+    } catch (e) {
+      console.error("Error loading data", e);
     } finally {
       setLoadingData(false);
     }
   };
 
+  useEffect(() => { refreshData(); }, [isAuthenticated]);
+
   return (
-    <GlobalContext.Provider
-      value={{
-        messageApi,
-        name,
-        setName,
-        email,
-        setEmail,
-        username,
-        setUsername,
-        balance,
-        setBalance,
-        transfers,
-        setTransfers,
-        totpToken,
-        setTotpToken,
-        loadingData,
-        setLoadingData,
-        refreshData,
-        picture,
-        setPicture
-      }}
-    >
-      {contextHolder}
+    <GlobalContext.Provider value={{ transactions, balance, refreshData, loadingData }}>
       {children}
     </GlobalContext.Provider>
   );
 };
+
+export const useGlobal = () => useContext(GlobalContext);

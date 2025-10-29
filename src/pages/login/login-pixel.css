@@ -134,3 +134,9 @@
    3) Eliminamos por completo SnowV3. Si tenías AnimatedGradient y querés mantenerlo,
       podés envolver <LoginPixel/> con tu componente de fondo, no interfiere.
    ============================ */
+
+
+   /* Ajustes suaves para el layout del login */
+.pixel-card { padding: 28px 24px; }
+.pixel-card .retro-btn { height: 44px; font-size: 12px; }
+.pixel-card .retro-title { display:block; margin-top:4px; }

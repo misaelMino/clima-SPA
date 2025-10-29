@@ -1,125 +1,62 @@
-import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+// src/pages/login/LoginPage.jsx
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/logo1.png";
 import "./login-pixel.css";
 import ButterRobotFace from "../../components/ButterRobotFace";
 
 export default function LoginPixel() {
-  const [form, setForm] = useState({ username: "", password: "" });
-  const [showPass, setShowPass] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const { loginWithRedirect, isAuthenticated, isLoading } = useAuth();
 
-  const userRef = useRef(null);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full bg-grid flex items-center justify-center p-4">
+        <div className="pixel-card w-full max-w-md">Cargando…</div>
+      </div>
+    );
+  }
 
-  const onChange = (field) => (e) => {
-    setForm((s) => ({ ...s, [field]: e.target.value }));
-    if (error) setError(null);
-  };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      await login(form); // misma API que ya usás
-      navigate("/", { replace: true });
-    } catch (err) {
-      const status = err?.response?.status;
-      const apiMsg = err?.response?.data?.message || err?.response?.data?.error;
-      const msg =
-        status === 401 || status === 400
-          ? "Credenciales incorrectas. Revisá usuario y contraseña."
-          : apiMsg || "No pudimos iniciar sesión. Intentá de nuevo.";
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (isAuthenticated) {
+    window.location.replace("/dashboard");
+    return null;
+  }
 
   return (
     <div className="min-h-screen w-full bg-grid flex items-center justify-center p-4">
-      {/* Contenedor principal con borde pixelado */}
-      <div className="pixel-card w-full max-w-md ">
-        <div className="mb-6">
-          <ButterRobotFace></ButterRobotFace>
-        </div>
-        {/* Branding */}
-        <div className="flex flex-col items-center gap-3">
-          {/* <img src={logo} alt="ButterBoi" className="h-14 drop-shadow-sm select-none" draggable={false} /> */}
-          <h1 className="retro-title text-center">BUTTERBOI • LOGIN</h1>
+      <div className="pixel-card w-full max-w-md">
+        {/* cara */}
+        <div className="mb-6 flex justify-center">
+          <ButterRobotFace />
         </div>
 
-        {/* "Lente" redondo dentro de carcasa cuadrada */}
-        {/* <div className="cam-shell mt-5">
-          <div className="cam-lens">
-            <div className="cam-glint" />
-          </div>
-        </div> */}
+        {/* título */}
+        <h1 className="retro-title text-center">BUTTERBOI • LOGIN</h1>
 
-        {/* Formulario */}
-        <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
-          <label className="retro-label" htmlFor="username">
-            Usuario
-          </label>
-          <input
-            ref={userRef}
-            id="username"
-            type="text"
-            className="retro-input"
-            placeholder="tu_usuario"
-            autoComplete="username"
-            value={form.username}
-            onChange={onChange("username")}
-            required
-          />
+        {/* acciones */}
+        <div className="mt-6 grid gap-3">
+          <button
+            className="retro-btn"
+            onClick={() =>
+              loginWithRedirect({
+                authorizationParams: { prompt: "login" },
+              })
+            }
+          >
+            Ingresar con Google
+          </button>
 
-          <label className="retro-label mt-2" htmlFor="password">
-            Contraseña
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              type={showPass ? "text" : "password"}
-              className="retro-input pr-24"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              value={form.password}
-              onChange={onChange("password")}
-              required
-            />
+          <p className="text-center text-[11px] tracking-wide text-zinc-300">
+            ¿No tenés cuenta?{" "}
             <button
-              type="button"
-              className="retro-ghost-btn absolute right-2 top-1/2 -translate-y-1/2"
-              onClick={() => setShowPass((s) => !s)}
-              aria-label={
-                showPass ? "Ocultar contraseña" : "Mostrar contraseña"
+              className="retro-link"
+              onClick={() =>
+                loginWithRedirect({
+                  authorizationParams: { screen_hint: "signup" },
+                })
               }
             >
-              {showPass ? "HIDE" : "SHOW"}
+              Registrate
             </button>
-          </div>
-
-          {error && (
-            <div className="retro-error" role="alert" aria-live="polite">
-              {error}
-            </div>
-          )}
-
-          <button type="submit" disabled={loading} className="retro-btn mt-2">
-            {loading ? "INGRESANDO…" : "INGRESAR"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-[11px] tracking-wide text-zinc-300">
-          ¿No tenés cuenta?{" "}
-          <a href="/register" className="retro-link">
-            REGISTRATE
-          </a>
-        </p>
+          </p>
+        </div>
       </div>
     </div>
   );

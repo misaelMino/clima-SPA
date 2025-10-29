@@ -1,35 +1,28 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext.jsx";
-import PrivateRoute from "./routes/PrivateRoute.jsx";
-import LoginPage from "./pages/login/LoginPage.jsx";
-import RegisterPage from "./pages/register/RegisterPage.jsx"
-
-// import Layout from "./components/Layout.jsx";
-import Home from "./pages/Home.jsx"
-
-const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
-  // { path: "/login", element: <GraficaDiaria /> },
-  { path: "/home", element: <Home/> },
-  { path: "/register", element: <RegisterPage /> },
-
-  // {
-  //   element: <PrivateRoute />,
-  //   children: [
-  //     {
-  //       element: <Layout />,
-  //       children: [
-  //         { path: "/", element: <GraficaDiaria /> }
-  //       ],
-  //     },
-  //   ],
-  // },
-]);
+// src/App.jsx
+import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { GlobalProvider } from "./context/GlobalContext";
+import LoginPage from "./pages/login/LoginPage";
+import Home from "./pages/Home";
+import PrivateRoute from "./routes/PrivateRoute";
 
 export default function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <GlobalProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Home />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<LoginPage />} />
+        </Routes>
+      </GlobalProvider>
     </AuthProvider>
   );
 }

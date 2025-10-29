@@ -1,95 +1,22 @@
-import { useLayoutEffect, useRef, useState, useMemo } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { gsap } from "gsap";
-import logo from "../../assets/logo1.png";
-import {
-  FaUser,
-  FaEnvelope,
-  FaLock,
-  FaFacebookF,
-  FaTwitter,
-  FaGoogle,
-  FaArrowRight,
-  FaInstagram,
-} from "react-icons/fa";
-import "./LoginPage.css";
-import SnowV3 from "../../components/SnowV3";
-import AnimatedGradient from "../../components/AnimatedGradient";
+import { useAuth } from "../../context/AuthContext";
+import "./login-pixel.css";
+import ButterRobotFace from "../../components/ButterRobotFace";
 
-export default function LoginPage() {
+export default function LoginPixel() {
   const [form, setForm] = useState({ username: "", password: "" });
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
-  // refs para animaciones
-  const cardRef = useRef(null);
-  const inputsRef = useRef([]);
-  const btnRef = useRef(null);
-  const socialsRef = useRef([]);
-  const StaticSnow = useMemo(
-    () => (
-      <SnowV3
-        className="absolute inset-0 z-[1]"
-        density={70}
-        speed={1.1}
-        color="#fff"
-      />
-    ),
-    []
-  );
+  const { login } = useAuth();
 
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(cardRef.current, {
-        opacity: 0,
-        y: 50,
-        duration: 1,
-        ease: "back",
-        immediateRender: false,
-        onComplete: () =>
-          gsap.set(cardRef.current, { clearProps: "transform" }),
-      });
-      gsap.from(inputsRef.current, {
-        opacity: 0,
-        x: -50,
-        stagger: 0.2,
-        duration: 0.8,
-        ease: "power2.out",
-        immediateRender: false,
-      });
-
-      if (btnRef.current) {
-        gsap.from(btnRef.current, {
-          opacity: 0,
-          scale: 0.5,
-          duration: 0.5,
-          delay: 1,
-          ease: "elastic.out(1, 0.5)",
-          immediateRender: false,
-          onComplete: () =>
-            gsap.set(btnRef.current, { clearProps: "transform" }),
-        });
-      }
-
-      gsap.to(socialsRef.current, {
-        y: -10,
-        stagger: 0.1,
-        duration: 0.8,
-        repeat: -1,
-        yoyo: true,
-        ease: "power1.inOut",
-      });
-    });
-
-    // Limpia correctamente al re-montar en StrictMode
-    return () => ctx.revert();
-  }, []);
+  const userRef = useRef(null);
 
   const onChange = (field) => (e) => {
-    setForm({ ...form, [field]: e.target.value });
-    if (error) setError(null); // limpia error al tipear
+    setForm((s) => ({ ...s, [field]: e.target.value }));
+    if (error) setError(null);
   };
 
   const onSubmit = async (e) => {
@@ -97,10 +24,9 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await login(form);
+      await login(form); // misma API que ya usás
       navigate("/", { replace: true });
     } catch (err) {
-      console.error("Login error:", err); 
       const status = err?.response?.status;
       const apiMsg = err?.response?.data?.message || err?.response?.data?.error;
       const msg =
@@ -109,80 +35,91 @@ export default function LoginPage() {
           : apiMsg || "No pudimos iniciar sesión. Intentá de nuevo.";
       setError(msg);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-2 relative">
-      <div
-        ref={cardRef}
-        className="dofon login-container z-[50] rounded-3xl p-8 shadow-2xl w-full max-w-md transform transition-transform duration-300"
-      >
-        <div className="logo-container">
-          <img src={logo} alt="logo" />
+    <div className="min-h-screen w-full bg-grid flex items-center justify-center p-4">
+      {/* Contenedor principal con borde pixelado */}
+      <div className="pixel-card w-full max-w-md ">
+        <div className="mb-6">
+          <ButterRobotFace></ButterRobotFace>
         </div>
-        <h2 className="login-title text-4xl font-extrabold mb-6 text-center">
-          Iniciar sesión
-        </h2>
+        {/* Branding */}
+        <div className="flex flex-col items-center gap-3">
+          {/* <img src={logo} alt="ButterBoi" className="h-14 drop-shadow-sm select-none" draggable={false} /> */}
+          <h1 className="retro-title text-center">BUTTERBOI • LOGIN</h1>
+        </div>
 
-        <form onSubmit={onSubmit} className="space-y-6" noValidate>
-          {/* Username */}
-          <div className="relative" ref={(el) => (inputsRef.current[0] = el)}>
-            <FaUser className="absolute left-3 top-3 text-white z-10" />
-            <input
-              type="text"
-              id="username"
-              value={form.username}
-              onChange={onChange("username")}
-              required
-              className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
-              placeholder="Usuario"
-              autoComplete="username"
-            />
+        {/* "Lente" redondo dentro de carcasa cuadrada */}
+        {/* <div className="cam-shell mt-5">
+          <div className="cam-lens">
+            <div className="cam-glint" />
           </div>
+        </div> */}
 
-          {/* Password */}
-          <div className="relative" ref={(el) => (inputsRef.current[1] = el)}>
-            <FaLock className="absolute left-3 top-3 text-white z-10" />
+        {/* Formulario */}
+        <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
+          <label className="retro-label" htmlFor="username">
+            Usuario
+          </label>
+          <input
+            ref={userRef}
+            id="username"
+            type="text"
+            className="retro-input"
+            placeholder="tu_usuario"
+            autoComplete="username"
+            value={form.username}
+            onChange={onChange("username")}
+            required
+          />
+
+          <label className="retro-label mt-2" htmlFor="password">
+            Contraseña
+          </label>
+          <div className="relative">
             <input
-              type="password"
               id="password"
+              type={showPass ? "text" : "password"}
+              className="retro-input pr-24"
+              placeholder="••••••••"
+              autoComplete="current-password"
               value={form.password}
               onChange={onChange("password")}
               required
-              className="input-field w-full pl-12 pr-4 py-3 rounded-lg text-white outline-none"
-              placeholder="Contraseña"
-              autoComplete="current-password"
             />
+            <button
+              type="button"
+              className="retro-ghost-btn absolute right-2 top-1/2 -translate-y-1/2"
+              onClick={() => setShowPass((s) => !s)}
+              aria-label={
+                showPass ? "Ocultar contraseña" : "Mostrar contraseña"
+              }
+            >
+              {showPass ? "HIDE" : "SHOW"}
+            </button>
           </div>
 
-          {/* Mensaje de error */}
           {error && (
-            <div className="form-error" role="alert" aria-live="polite">
+            <div className="retro-error" role="alert" aria-live="polite">
               {error}
             </div>
           )}
 
-          <button
-            ref={btnRef}
-            type="submit"
-            disabled={loading}
-            className="dsadsa login-button w-full text-white font-bold py-3 px-4 rounded-lg"
-          >
-            <span>{loading ? "Ingresando..." : "Ingresar"}</span>
+          <button type="submit" disabled={loading} className="retro-btn mt-2">
+            {loading ? "INGRESANDO…" : "INGRESAR"}
           </button>
         </form>
 
-        <p className="text-white text-center mt-6">
+        <p className="mt-6 text-center text-[11px] tracking-wide text-zinc-300">
           ¿No tenés cuenta?{" "}
-          <a href="/register" className="register-link font-bold">
-            Registrate
+          <a href="/register" className="retro-link">
+            REGISTRATE
           </a>
         </p>
       </div>
-      {StaticSnow}
-      <AnimatedGradient />
     </div>
   );
 }
