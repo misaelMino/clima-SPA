@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRobotStore } from "../store/useRobotStore";
 import { useIdleBehavior } from "../hooks/useIdleBehavior";
+import { useSyncMe } from "../hooks/useSyncMe";
 import ControlPad from "../features/control/ControlPad";
 import MoodFace from "../features/gestures/MoodFace";
 import SensorsPanel from "../features/sensors/SensorsPanel";
@@ -8,46 +9,67 @@ import SettingsSheet from "../features/settings/SettingsSheet";
 import TopBar from "../widgets/TopBar";
 import CameraPanel from "../features/camera/CameraPanel";
 import ActionBar from "../widgets/ActionBar";
+import ModePanel from "../components/ModePanel";
+import { useMoodStore } from "../store/useMoodStore";
+import ChatDock from "../components/chat/ChatDock";
 
 export default function Home() {
+  useSyncMe();
+
+  const mood = useMoodStore((s) => s.mood);
   const startTelemetry = useRobotStore((s) => s.startTelemetry);
+  const seedTelemetry = useRobotStore((s) => s.seedTelemetry);
+  const startMockTelemetry = useRobotStore((s) => s.startMockTelemetry);
+  const stopMockTelemetry = useRobotStore((s) => s.stopMockTelemetry);
+
+  // decide si usar mock: can be env based or manual toggle
+  const enableMock =
+    process.env.NODE_ENV === "development" ||
+    window.location.search.includes("mock=1");
+
   useEffect(() => {
+    // Siempre intenta conectar el cliente real (si está disponible)
     startTelemetry();
-  }, [startTelemetry]);
+
+    // Seed y mock solo si queremos
+    seedTelemetry();
+    if (enableMock) startMockTelemetry(3000);
+
+    return () => {
+      // limpiar intervalos de mock al desmontar
+      if (enableMock) stopMockTelemetry();
+      // si más adelante startTelemetry instala listeners, recuerda que
+      // startTelemetry debería exponer una forma de desconectar (ideal).
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // solo al montar
+
   useIdleBehavior();
 
   return (
     <div className="min-h-screen w-full bg-[#0b0f16] text-white p-3">
       <TopBar />
-
-      {/* Responsive layout: */}
-      {/* lg: 12 cols => izquierda (gestos+mando) 3, centro cámara 6, derecha (sensores+config) 3 */}
       <main className="max-w-7xl mx-auto grid gap-3 lg:grid-cols-12">
-        {/* IZQUIERDA: Gestos arriba + mando abajo */}
         <section className="grid gap-3 lg:col-span-3">
-          {/* Gestos (cara/sprite) */}
-          <MoodFace spriteSheet="/assets/faces.png" mood="neutral" />
-          {/* Mando */}
+          <MoodFace mood={mood} size={160} />
           <ControlPad />
         </section>
-
-        {/* CENTRO: Cámara */}
         <section className="lg:col-span-6">
           <CameraPanel />
+          <div className="w-full flex py-2 justify-center align-middle">
+            <ActionBar />
+          </div>
         </section>
-
-        {/* DERECHA: Sensores + Config */}
-        <aside className="grid gap-3 lg:col-span-3">
+        <aside className="flex flex-col gap-3 lg:col-span-3 w-full">
           <SensorsPanel />
-          <SettingsSheet />
+          <div className="flex flex-col gap-2 p-2">
+            <ModePanel />
+            <ChatDock />
+          </div>
         </aside>
 
-        {/* Barra de acciones centrada bajo la cámara (ocupa las 12 cols en desktop) */}
-        <div className="lg:col-span-12">
-          <ActionBar />
-        </div>
+        <div className="lg:col-span-12"></div>
       </main>
-
       <div className="h-4" />
     </div>
   );

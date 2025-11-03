@@ -15,7 +15,7 @@ export default function LoginPixel() {
   }
 
   if (isAuthenticated) {
-    window.location.replace("/dashboard");
+    window.location.replace("/home");
     return null;
   }
 

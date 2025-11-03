@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/',            // explícito
   publicDir: 'public',  // explícito
-  server: { port: 4200 }
+  server: { port: 5173 }
 })

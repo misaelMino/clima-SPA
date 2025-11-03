@@ -11,7 +11,7 @@ export const useRobotStore = create((set, get) => ({
   idleMin: 6, // seconds between random acts
   idleMax: 14,
 
-  // Telemetry
+  // Telemetry (valores iniciales neutrales)
   battery: null,
   temperature: null,
   humidity: null,
@@ -19,8 +19,12 @@ export const useRobotStore = create((set, get) => ({
   distance: null,
   motion: false,
 
-  mood: "neutral", // current face key
-  busyUntil: 0, // epoch ms
+  mood: "neutral",
+  busyUntil: 0,
+
+  // nuevo: control de mocks
+  useMockTelemetry: false,
+  _mockIntervalId: null,
 
   setDuration(type, seconds) {
     if (type === "move")
@@ -68,8 +72,70 @@ export const useRobotStore = create((set, get) => ({
     }));
   },
 
+  // nuevo: set de valores 'hardcode' — uso puntual
+  seedTelemetry() {
+    set({
+      battery: 87,
+      temperature: 28.3,
+      humidity: 61,
+      light: 240,
+      distance: 18,
+      motion: true,
+      mood: "happy",
+    });
+  },
+
+  // nuevo: simulador periódico (cambia valores levemente cada segundo)
+  startMockTelemetry(intervalMs = 1000) {
+    // evita crear múltiples intervalos
+    if (get()._mockIntervalId) return;
+    set({ useMockTelemetry: true });
+    const id = setInterval(() => {
+      const s = get();
+      // genera pequeñas fluctuaciones
+      const jitter = (v, amp = 1) =>
+        Math.round((v + (Math.random() * 2 - 1) * amp) * 10) / 10;
+
+      // si hay null, inicializa con seed
+      const baseTemp = s.temperature ?? 25;
+      const baseHum = s.humidity ?? 50;
+      const baseLight = s.light ?? 200;
+      const baseDist = s.distance ?? 30;
+      const baseBat = s.battery ?? 90;
+
+      get().updateFromTelemetry({
+        temperature: jitter(baseTemp, 0.5),
+        humidity: Math.max(0, Math.min(100, jitter(baseHum, 2))),
+        light: Math.max(0, Math.round(jitter(baseLight, 20))),
+        distance: Math.max(0, Math.round(jitter(baseDist, 2))),
+        battery: Math.max(0, Math.min(100, Math.round(baseBat - Math.random() * 0.01))),
+        motion: Math.random() > 0.7,
+      });
+    }, intervalMs);
+    set({ _mockIntervalId: id });
+  },
+
+  // nuevo: detener mock
+  stopMockTelemetry() {
+    const id = get()._mockIntervalId;
+    if (id) {
+      clearInterval(id);
+      set({ _mockIntervalId: null, useMockTelemetry: false });
+    }
+  },
+
   startTelemetry() {
     const c = getClient();
+    if (!c) {
+      // si no hay cliente mqtt y estamos en modo dev, arrancamos mock automático
+      if (process.env.NODE_ENV === "development") {
+        // seed inicial y arranque de mock
+        get().seedTelemetry();
+        get().startMockTelemetry(1000);
+      }
+      return;
+    }
+
     c.on("message", (topic, msg) => {
       if (!topic.startsWith("butterboi/telemetry")) return;
       try {

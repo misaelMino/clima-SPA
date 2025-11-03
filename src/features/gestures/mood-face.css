@@ -19,3 +19,7 @@
   image-rendering: pixelated;
   box-shadow: 0 0 0 3px #0a151c, 0 0 22px rgba(146, 230, 255, 0.25);
 }
+
+.pixelated {
+  image-rendering: pixelated;
+}

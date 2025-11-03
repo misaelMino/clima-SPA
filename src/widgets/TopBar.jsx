@@ -9,7 +9,7 @@ export default function TopBar() {
       <div className="flex items-center gap-2">
         <button
           className="p-2 rounded-lg bg-white/5 hover:bg-white/10"
-          onClick={() => nav("/dashboard")}
+          onClick={() => nav("/home")}
           aria-label="Dashboard"
         >
           <BarChart3 size={16} />

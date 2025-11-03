@@ -37,7 +37,13 @@ export default function ControlPad() {
       }
 
       // Extras
-      if (e.key === " " || e.key === "Enter") {
+      // Extras: solo bloquear si NO estoy escribiendo en un input/textarea
+      const isTyping =
+        e.target.tagName === "INPUT" ||
+        e.target.tagName === "TEXTAREA" ||
+        e.target.isContentEditable;
+
+      if ((e.key === " " || e.key === "Enter") && !isTyping) {
         e.preventDefault();
         command("dance");
       } else if (e.key === "Escape") {
