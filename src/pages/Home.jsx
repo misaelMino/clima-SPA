@@ -4,6 +4,7 @@ import { useIdleBehavior } from "../hooks/useIdleBehavior";
 import { useSyncMe } from "../hooks/useSyncMe";
 import ControlPad from "../features/control/ControlPad";
 import MoodFace from "../features/gestures/MoodFace";
+import { getClient } from "../mqtt/mqttClient";
 import SensorsPanel from "../features/sensors/SensorsPanel";
 import SettingsSheet from "../features/settings/SettingsSheet";
 import TopBar from "../widgets/TopBar";
@@ -17,6 +18,12 @@ export default function Home() {
   useSyncMe();
 
   const mood = useMoodStore((s) => s.mood);
+
+  useEffect(() => {
+    getClient(); // inicia conexión y suscripción
+  }, []);
+
+  
   const startTelemetry = useRobotStore((s) => s.startTelemetry);
   const seedTelemetry = useRobotStore((s) => s.seedTelemetry);
   const startMockTelemetry = useRobotStore((s) => s.startMockTelemetry);
