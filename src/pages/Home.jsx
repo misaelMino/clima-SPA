@@ -13,10 +13,11 @@ import ActionBar from "../widgets/ActionBar";
 import ModePanel from "../components/ModePanel";
 import { useMoodStore } from "../store/useMoodStore";
 import ChatDock from "../components/chat/ChatDock";
+import { useSyncMe } from "../hooks/useSyncMe";
 
 export default function Home() {
   const mood = useMoodStore((s) => s.mood);
-
+  useSyncMe();
   useEffect(() => {
     getClient(); // inicia conexión y suscripción
   }, []);
@@ -42,10 +43,10 @@ export default function Home() {
     // if (enableMock) startMockTelemetry(3000);
 
     // return () => {
-      // limpiar intervalos de mock al desmontar
-      // if (enableMock) stopMockTelemetry();
-      // si más adelante startTelemetry instala listeners, recuerda que
-      // startTelemetry debería exponer una forma de desconectar (ideal).
+    // limpiar intervalos de mock al desmontar
+    // if (enableMock) stopMockTelemetry();
+    // si más adelante startTelemetry instala listeners, recuerda que
+    // startTelemetry debería exponer una forma de desconectar (ideal).
     // };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // solo al montar
