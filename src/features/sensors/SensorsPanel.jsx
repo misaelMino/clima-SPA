@@ -8,7 +8,6 @@ export default function SensorsPanel() {
     // label, value, unit, max, hint, color
     { label: "Temp,", value: temperature, unit: "°C", max: 50, hint: null, color: "bg-orange-400" },
     { label: "Hum.", value: humidity, unit: "%", max: 100, hint: null, color: "bg-blue-400" },
-    { label: "Luz", value: light, unit: "lx", max: 1000, hint: null, color: "bg-yellow-300" },
     { label: "Dist.", value: distance, unit: "cm", max: 200, hint: null, color: "bg-purple-400" },
   ];
 

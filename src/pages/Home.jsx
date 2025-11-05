@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRobotStore } from "../store/useRobotStore";
 import { useIdleBehavior } from "../hooks/useIdleBehavior";
-import { useSyncMe } from "../hooks/useSyncMe";
+
 import ControlPad from "../features/control/ControlPad";
 import MoodFace from "../features/gestures/MoodFace";
 import { getClient } from "../mqtt/mqttClient";
@@ -15,43 +15,42 @@ import { useMoodStore } from "../store/useMoodStore";
 import ChatDock from "../components/chat/ChatDock";
 
 export default function Home() {
-  useSyncMe();
-
   const mood = useMoodStore((s) => s.mood);
 
   useEffect(() => {
     getClient(); // inicia conexión y suscripción
   }, []);
 
-  
-  const startTelemetry = useRobotStore((s) => s.startTelemetry);
-  const seedTelemetry = useRobotStore((s) => s.seedTelemetry);
-  const startMockTelemetry = useRobotStore((s) => s.startMockTelemetry);
-  const stopMockTelemetry = useRobotStore((s) => s.stopMockTelemetry);
+  // const startTelemetry = useRobotStore((s) => s.startTelemetry);
+  // const seedTelemetry = useRobotStore((s) => s.seedTelemetry);
+  // const startMockTelemetry = useRobotStore((s) => s.startMockTelemetry);
+  // const stopMockTelemetry = useRobotStore((s) => s.stopMockTelemetry);
 
-  // decide si usar mock: can be env based or manual toggle
-  const enableMock =
-    process.env.NODE_ENV === "development" ||
-    window.location.search.includes("mock=1");
+  // // decide si usar mock: can be env based or manual toggle
+  // const enableMock =
+  //   process.env.NODE_ENV === "development" ||
+  //   window.location.search.includes("mock=1");
+
+  const startTelemetry = useRobotStore((s) => s.startTelemetry);
 
   useEffect(() => {
     // Siempre intenta conectar el cliente real (si está disponible)
     startTelemetry();
 
     // Seed y mock solo si queremos
-    seedTelemetry();
-    if (enableMock) startMockTelemetry(3000);
+    // seedTelemetry();
+    // if (enableMock) startMockTelemetry(3000);
 
-    return () => {
+    // return () => {
       // limpiar intervalos de mock al desmontar
-      if (enableMock) stopMockTelemetry();
+      // if (enableMock) stopMockTelemetry();
       // si más adelante startTelemetry instala listeners, recuerda que
       // startTelemetry debería exponer una forma de desconectar (ideal).
-    };
+    // };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // solo al montar
 
-  useIdleBehavior();
+  // useIdleBehavior();
 
   return (
     <div className="min-h-screen w-full bg-[#0b0f16] text-white p-3">

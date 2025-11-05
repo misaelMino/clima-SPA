@@ -1,6 +1,34 @@
 import { create } from "zustand";
 import { publishCmd, getClient, topics } from "../mqtt/mqttClient";
 
+// === Robot plain-command topics (firmware ESP32) ===
+const ROBOT_CMD_TOPICS = ["robot/comandos", "sensory/robot/comandos"];
+
+// Mapa UI → comando plano del robot
+const mapToRobot = {
+  up: "avanzar",
+  down: "retroceder",
+  left: "izquierda",
+  right: "derecha",
+  stop: "parar",
+  dance: "bailar",
+  spin: "girar360",
+};
+
+// helper: envía texto plano a ambos topics del robot
+function sendRobotPlain(cmd) {
+  try {
+    const c = getClient();
+    if (!c) return;
+    ROBOT_CMD_TOPICS.forEach((t) =>
+      c.publish(t, cmd, { qos: 0, retain: false })
+    );
+    console.log("[MQTT] →", ROBOT_CMD_TOPICS.join(","), ":", cmd);
+  } catch (e) {
+    console.warn("[MQTT] no se pudo publicar comando plano:", e?.message);
+  }
+}
+
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
 export const useRobotStore = create((set, get) => ({
@@ -38,10 +66,11 @@ export const useRobotStore = create((set, get) => ({
   },
 
   // Command dispatch with lockout
+  // Command dispatch with lockout
   async command(kind) {
     const now = Date.now();
     const { busyUntil } = get();
-    if (now < busyUntil) return false; // still locked
+    if (now < busyUntil) return false; // lock anti-spam
 
     const { movementDuration, danceDuration } = get();
     const durations = {
@@ -55,7 +84,14 @@ export const useRobotStore = create((set, get) => ({
     };
     const seconds = durations[kind] ?? 1;
 
+    // 1) Publicamos plano a los topics del robot (lo que el ESP32 espera)
+    const robotCmd = mapToRobot[kind];
+    if (robotCmd) sendRobotPlain(robotCmd);
+
+    // 2) (opcional/legacy) mantené tu publishCmd JSON al topic butterboi/cmd
+    //    útil si después armamos un adapter/bridge
     publishCmd(kind, { seconds });
+
     set({ busyUntil: now + seconds * 1000 });
     return true;
   },
@@ -108,7 +144,10 @@ export const useRobotStore = create((set, get) => ({
         humidity: Math.max(0, Math.min(100, jitter(baseHum, 2))),
         light: Math.max(0, Math.round(jitter(baseLight, 20))),
         distance: Math.max(0, Math.round(jitter(baseDist, 2))),
-        battery: Math.max(0, Math.min(100, Math.round(baseBat - Math.random() * 0.01))),
+        battery: Math.max(
+          0,
+          Math.min(100, Math.round(baseBat - Math.random() * 0.01))
+        ),
         motion: Math.random() > 0.7,
       });
     }, intervalMs);
@@ -126,22 +165,47 @@ export const useRobotStore = create((set, get) => ({
 
   startTelemetry() {
     const c = getClient();
-    if (!c) {
-      // si no hay cliente mqtt y estamos en modo dev, arrancamos mock automático
-      if (process.env.NODE_ENV === "development") {
-        // seed inicial y arranque de mock
-        get().seedTelemetry();
-        get().startMockTelemetry(1000);
+    if (!c) return;
+
+    // Evitar duplicar listeners si re-montás
+    if (get()._telemetryAttached) return;
+    set({ _telemetryAttached: true });
+
+    // Nos suscribimos a los topics reales del firmware/simulador
+    c.subscribe("robot/sensores/+", { qos: 0 });
+
+    const parseJson = (buf) => {
+      try {
+        return JSON.parse(buf.toString());
+      } catch {
+        return null;
       }
-      return;
-    }
+    };
 
     c.on("message", (topic, msg) => {
-      if (!topic.startsWith("butterboi/telemetry")) return;
-      try {
-        const data = JSON.parse(msg.toString());
-        get().updateFromTelemetry(data);
-      } catch {}
+      // solo los de sensores
+      if (!topic.startsWith("robot/sensores/")) return;
+      const data = parseJson(msg);
+      if (!data) return;
+
+      // dht: { temperatura, humedad }
+      if (topic === "robot/sensores/dht") {
+        const temperature =
+          typeof data.temperatura === "number" ? data.temperatura : null;
+        const humidity = typeof data.humedad === "number" ? data.humedad : null;
+        get().updateFromTelemetry({ temperature, humidity });
+        return;
+      }
+
+      // distancia: { distancia } (en cm)
+      if (topic === "robot/sensores/distancia") {
+        const distance =
+          typeof data.distancia === "number" ? data.distancia : null;
+        get().updateFromTelemetry({ distance });
+        return;
+      }
+
+      // otros futuros: battery, light, etc. (cuando el firmware los publique)
     });
   },
 }));
